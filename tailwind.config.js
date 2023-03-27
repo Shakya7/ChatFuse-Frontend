@@ -4,7 +4,13 @@ module.exports = {
     "./src/**/*.{js,jsx,ts,tsx}",
   ],
   theme: {
-    extend: {},
+    extend: {
+      fontFamily:{
+        fascinate:['"Fascinate","ui-sans-serif"'],
+        nunito:['"Nunito","ui-sans-serif"'],
+        poppins:['"Poppins","ui-sans-serif"']
+      }
+    },
   },
   plugins: [],
 }
