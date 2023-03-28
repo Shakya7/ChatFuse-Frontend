@@ -2,7 +2,8 @@ import React from 'react'
 import { useNavigate } from 'react-router-dom';
 import ChatHeads from './ChatHeads';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faPenToSquare } from '@fortawesome/free-solid-svg-icons';
+import { faPenToSquare, faMagnifyingGlass } from '@fortawesome/free-solid-svg-icons';
+import { useSelector } from 'react-redux';
 
 
 const users=[
@@ -29,24 +30,25 @@ const users=[
 ]
 
 function ChatList() {
+  const theme=useSelector((state)=>state.settings.darkMode);
   const navigate=useNavigate();
   return (
-    <div className="bg-[#29252e] basis-5/6 h-full overflow-hidden">
+    <div className={`${theme?"bg-[#29252e]":"bg-stone-200"} basis-5/6 h-full overflow-hidden`}>
         <div className="px-5">
-            <div className="h-16 border border-transparent border-b-stone-700">
+            <div className={`h-16 border border-transparent ${theme?"border-b-stone-700":"border-b-stone-300"}`}>
             
             </div>
             <div className="flex flex-col mt-4">
                 <div className="flex justify-between items-baseline">
                     <div className="flex gap-3 items-baseline font-nunito">
-                        <p className="text-2xl text-white">Messages</p>
+                        <p className={`text-2xl ${theme?"text-white":"text-black"}`}>Messages</p>
                         <b className="text-teal-500">48 New</b>
                     </div>
                     <FontAwesomeIcon className="text-teal-500 text-lg cursor-pointer" icon={faPenToSquare}/>
                 </div>
-                <div className="bg-[#1d1923] mt-2.5 rounded-lg py-2">
-                    <input placeholder='Search anything' className="bg-transparent pl-2 outline-0 text-sm text-white placeholder:text-stone-700"/>
-                    
+                <div className={`${theme?"bg-[#1d1923]":"bg-white"} mt-2.5 rounded-lg py-2 flex justify-between items-center`}>
+                    <input placeholder='Search anything' className={`bg-transparent pl-2 outline-0 text-sm ${theme?"text-white":"text-black"} placeholder:text-stone-700`}/>
+                    <FontAwesomeIcon className="text-stone-700 pr-2" icon={faMagnifyingGlass}/>
                 </div>
             </div>
             <section className="mt-5">
