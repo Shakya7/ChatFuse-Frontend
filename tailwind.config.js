@@ -5,6 +5,9 @@ module.exports = {
   ],
   theme: {
     extend: {
+      screens:{
+        xmd:"940px"
+      },
       fontFamily:{
         fascinate:['"Fascinate","ui-sans-serif"'],
         nunito:['"Nunito","ui-sans-serif"'],

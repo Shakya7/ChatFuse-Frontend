@@ -2,6 +2,9 @@ import {BrowserRouter, Routes, Route} from "react-router-dom";
 import ChatWindow from "./components/ChatWindow";
 import MainLayout from "./components/MainLayout";
 import HomeScreenWindow from "./components/HomeScreenWindow";
+import { useState, useEffect } from "react";
+import { createContext } from "react";
+import { useNavigate } from "react-router-dom";
 
 const COLOR_CODES={
   navbar: "#16141b //  [main] #18141b",
@@ -17,17 +20,20 @@ const COLOR_CODES={
 
 }
 
+export const ScreenWidth=createContext();
+
 function App() {
-  //const [screenWidth,setScreenWidth]=useState(window.innerWidth);
+  const [screenWidth,setScreenWidth]=useState(window.innerWidth);
 
-  // useEffect(()=>{
-  //   function handleResize() {
-  //     setScreenWidth(window.innerWidth);
-  //   }
-  //   console.log(screenWidth);
-  //   window.addEventListener('resize', handleResize);
+  useEffect(()=>{
+    function handleResize() {
+      setScreenWidth(window.innerWidth);
+    }
+    console.log(screenWidth);
+    window.addEventListener('resize', handleResize);
 
-  // },[screenWidth])
+  },[screenWidth])
+
 
   /*
    return (
@@ -50,12 +56,15 @@ function App() {
   
   return (
     <BrowserRouter>
+      <ScreenWidth.Provider value={screenWidth}>
           <Routes>
             <Route path="/" element={<MainLayout/>}>
               <Route index element={<HomeScreenWindow/>}/>
               <Route path="/chat/:id" element={<ChatWindow/>}/>
             </Route>
+            <Route path="/mobile-chat/:id" element={<ChatWindow/>}/>
           </Routes>
+      </ScreenWidth.Provider>
     </BrowserRouter>
   );
 }
