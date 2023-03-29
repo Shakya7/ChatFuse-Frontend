@@ -26,66 +26,7 @@ const users=[
         name:"Supratik",
         message:"Whats up bhai?"
     },
-    {
-        id:12345,
-        name:"Subarna",
-        message:"Lets party on Saturday and play cricket hahahahaha"
-    },
-    {
-        id:76434,
-        name:"Sohom",
-        message:"Khankir chele"
-    },
-    {
-        id:87234,
-        name:"Moon",
-        message:"Yoooooooo"
-    },
-    {
-        id:87612,
-        name:"Supratik",
-        message:"Whats up bhai?"
-    },
-    {
-        id:12345,
-        name:"Subarna",
-        message:"Lets party on Saturday and play cricket hahahahaha"
-    },
-    {
-        id:76434,
-        name:"Sohom",
-        message:"Khankir chele"
-    },
-    {
-        id:87234,
-        name:"Moon",
-        message:"Yoooooooo"
-    },
-    {
-        id:87612,
-        name:"Supratik",
-        message:"Whats up bhai?"
-    },
-    {
-        id:12345,
-        name:"Subarna",
-        message:"Lets party on Saturday and play cricket hahahahaha"
-    },
-    {
-        id:76434,
-        name:"Sohom",
-        message:"Khankir chele"
-    },
-    {
-        id:87234,
-        name:"Moon",
-        message:"Yoooooooo"
-    },
-    {
-        id:87612,
-        name:"LAST",
-        message:"Whats up bhai?"
-    }
+   
 ]
 
 function ChatList() {
