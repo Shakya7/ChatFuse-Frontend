@@ -13,7 +13,6 @@ function ChatHeads(props) {
 
     useEffect(()=>{
         const path = window.location.pathname;
-        console.log(path);
         if(screenWidth<="640" && path==`/chat/${props.id}`)
             navigate(`/mobile-chat/${props.id}`)
     },[screenWidth]);

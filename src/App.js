@@ -4,7 +4,6 @@ import MainLayout from "./components/MainLayout";
 import HomeScreenWindow from "./components/HomeScreenWindow";
 import { useState, useEffect } from "react";
 import { createContext } from "react";
-import { useNavigate } from "react-router-dom";
 
 const COLOR_CODES={
   navbar: "#16141b //  [main] #18141b",
@@ -29,7 +28,6 @@ function App() {
     function handleResize() {
       setScreenWidth(window.innerWidth);
     }
-    console.log(screenWidth);
     window.addEventListener('resize', handleResize);
 
   },[screenWidth])
