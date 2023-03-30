@@ -1,9 +1,11 @@
 import {BrowserRouter, Routes, Route} from "react-router-dom";
-import ChatWindow from "./components/ChatWindow";
-import MainLayout from "./components/MainLayout";
-import HomeScreenWindow from "./components/HomeScreenWindow";
+import ChatWindow from "./components/chat/ChatWindow";
+import MainLayout from "./components/chat/MainLayout";
+import HomeScreenWindow from "./components/chat/HomeScreenWindow";
 import { useState, useEffect } from "react";
 import { createContext } from "react";
+import ChannelPage from "./components/channel/ChannelPage";
+import ChannelWindow from "./components/channel/ChannelWindow";
 
 const COLOR_CODES={
   navbar: "#16141b //  [main] #18141b",
@@ -61,6 +63,11 @@ function App() {
               <Route path="/chat/:id" element={<ChatWindow/>}/>
             </Route>
             <Route path="/mobile-chat/:id" element={<ChatWindow/>}/>
+            <Route path="/mobile-channel/:id" element={<ChannelWindow/>}/>
+            <Route path="/channel" element={<ChannelPage/>}>
+              <Route index element={<HomeScreenWindow/>}/>
+              <Route path="/channel/:id" element={<ChannelWindow/>}/>
+            </Route>
           </Routes>
       </ScreenWidth.Provider>
     </BrowserRouter>

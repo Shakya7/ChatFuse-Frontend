@@ -7,7 +7,7 @@ function MainLayout(){
     return(
         <div className="flex h-screen bg-red-300">
             <LeftPane/>
-            <div className={`hidden sm:block sm:basis-3/5 xmd:basis-2/3 h-screen ${theme?"bg-[#261f2d]":"bg-stone-100"}`}>
+            <div className={`hidden sm:block sm:basis-3/5 xmd:basis-2/3 h-screen ${theme?"bg-[#261f2d]":"bg-stone-300"}`}>
                 <Outlet/>
             </div>
         </div>

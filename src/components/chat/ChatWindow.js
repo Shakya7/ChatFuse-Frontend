@@ -1,15 +1,13 @@
 import {useEffect, useState, useContext} from 'react';
-import { ScreenWidth } from '../App';
+import { ScreenWidth } from '../../App';
 import {useNavigate } from 'react-router-dom';
 import { useSelector } from 'react-redux';
 import ChatSendFooter from './ChatSendFooter';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faEllipsisVertical, faPhone, faSearch, faArrowLeft } from '@fortawesome/free-solid-svg-icons';
 import ChatWindowHeader from './ChatWindowHeader';
 
-import dark_theme_1 from "../images/dark_theme_main_wallpaper.jpg";
-import dark_theme_2 from "../images/dark_theme_dflt_wallpaper.jpg";
-import light_theme_1 from "../images/light_theme_main_wallpaper.jpg";
+import dark_theme_1 from "../../images/dark_theme_main_wallpaper.jpg";
+import dark_theme_2 from "../../images/dark_theme_dflt_wallpaper.jpg";
+import light_theme_1 from "../../images/light_theme_main_wallpaper.jpg";
 
 
 function ChatWindow() {

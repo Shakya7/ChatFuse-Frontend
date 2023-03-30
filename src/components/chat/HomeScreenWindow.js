@@ -1,5 +1,5 @@
 import React from 'react';
-import homescreenimage from "../images/homescreen_window.png";
+import homescreenimage from "../../images/homescreen_window.png";
 import { useSelector } from 'react-redux';
 
 function HomeScreenWindow() {
