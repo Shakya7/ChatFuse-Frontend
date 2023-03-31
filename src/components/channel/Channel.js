@@ -3,7 +3,7 @@ import { useSelector } from 'react-redux';
 import { faGear, faHashtag, faUserPlus } from '@fortawesome/free-solid-svg-icons';
 import { useNavigate } from 'react-router-dom';
 import { ScreenWidth } from '../../App';
-import { useEffect, useContext } from 'react';
+import { useContext } from 'react';
 
 function Channel(props) {
   const theme=useSelector((state)=>state.settings.darkMode);

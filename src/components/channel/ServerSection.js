@@ -10,18 +10,16 @@ function ServerSection() {
   const theme=useSelector((state)=>state.settings.darkMode);
   const navigate=useNavigate();
   const screenWidth=useContext(ScreenWidth);
+
   useEffect(()=>{
-    // const path = window.location.pathname;
-    // if(screenWidth<="640" && path==`/channel/${props.id}`)
-    //     navigate(`/mobile-chat/${props.id}`)
     const path = window.location.pathname;
     const match=path.match(/channel\/(\d+)/);
     const channelID=match?match[1]:""
     if(screenWidth<="640" && path===`/channel/${channelID}`){
-        console.log("Hello okay lets see if its working")
         navigate(`/mobile-channel/${channelID}`);
     }
   },[screenWidth]);
+  
   return (
     <div className={`basis-4/5 ${theme?"bg-[#2B2C31]":"bg-[#F2F3F5]"} flex flex-col overflow-hidden`}>
         <div className={`${theme?"text-stone-200":"text-stone-800"} cursor-pointer py-5 px-3 flex items-center justify-between backdrop-blur-xl items-center border border-transparent ${theme ? "border-b-stone-900" : "border-b-stone-300"}`}>

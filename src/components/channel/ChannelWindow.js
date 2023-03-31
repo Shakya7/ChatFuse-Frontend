@@ -1,4 +1,4 @@
-import {useEffect, useState, useContext} from 'react';
+import {useEffect, useContext} from 'react';
 import { ScreenWidth } from '../../App';
 import {useNavigate } from 'react-router-dom';
 import { useSelector } from 'react-redux';
@@ -15,7 +15,6 @@ function ChannelWindow() {
         const match=path.match(/mobile-channel\/(\d+)/);
         const channelID=match?match[1]:""
         if(screenWidth>"640" && path===`/mobile-channel/${channelID}`){
-            console.log("Hello okay lets see if its working")
             navigate(`/channel/${channelID}`);
         }
     },[screenWidth])

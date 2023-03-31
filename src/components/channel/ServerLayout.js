@@ -6,7 +6,7 @@ import { useSelector } from 'react-redux';
 function ServerLayout() {
   const theme=useSelector((state)=>state.settings.darkMode);
   return (
-    <div className="basis-full sm:basis-[29.5%] flex bg-[#29252e] overflow-hidden">
+    <div className="basis-5/6 h-full flex bg-[#29252e] overflow-hidden">
       <div className={`basis-1/5 flex flex-col gap-3 py-2 items-center scrollbar-none overflow-y-auto ${theme?"bg-[#1E1E22]}":"bg-[#E3E4E8]"}`}>
         <div className="w-14 min-w-[3.5rem] h-14 min-h-[3.5rem] rounded-[4rem] bg-red-300 cursor-pointer duration-500 hover:rounded-lg" />
         <div className="w-14 min-w-[3.5rem] h-14 min-h-[3.5rem] rounded-[4rem] bg-red-300 cursor-pointer duration-500 hover:rounded-lg" />
