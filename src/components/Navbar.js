@@ -32,9 +32,12 @@ function Navbar(props) {
   },[])
 
   return (
-    <div className={`${theme?"bg-[#16141b]":"bg-stone-100"} ${props.wdth} border border-transparent ${theme?"border-r-stone-700":"border-r-stone-300"} h-full overflow-y-auto flex flex-col items-center`}>
+    <div className={`${theme?"bg-[#16141b]":"bg-stone-100"} ${props.wdth} scrollbar-none border border-transparent ${theme?"border-r-stone-700":"border-r-stone-300"} h-full overflow-y-auto flex flex-col items-center`}>
       <img className="mb-3.5" src={logo} alt="logo"/>
-      <div className="w-10 min-w-[2.5rem] h-10 min-h-[2.5rem] rounded-full bg-red-300 transition-colors ease-in-out delay-150 cursor-pointer hover:bg-red-500"/>
+      <div onClick={()=>{
+        dispatch(setSection("profile"));
+        navigation("/profile")
+        }} className="w-10 min-w-[2.5rem] h-10 min-h-[2.5rem] rounded-full bg-red-300 transition-colors ease-in-out delay-150 cursor-pointer hover:bg-red-500"/>
       <div className={`border w-[70%] border-transparent ${theme?"border-b-stone-700":"border-b-stone-300"} flex flex-col text-xl mt-10 transition-colors ease-in-out delay-150`}>
         <FontAwesomeIcon onClick={()=>{
           dispatch(setSection("chat"));
