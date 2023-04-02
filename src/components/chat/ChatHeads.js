@@ -25,7 +25,9 @@ function ChatHeads(props) {
                 navigate(`/chat/${props.id}`);
         }} className="mt-6 flex justify-between items-center w-full text-sm cursor-pointer">
             <div className="flex justify-start items-center w-4/5 gap-2 overflow-hidden">
-                <div className="w-10 min-w-[2.5rem] h-10 min-h-[2.5rem] rounded-full bg-red-300"/>
+                <div className="w-10 relative min-w-[2.5rem] h-10 min-h-[2.5rem] rounded-full bg-red-300">
+                    <div className="absolute w-[10px] h-[10px] rounded-full bg-green-700 bottom-0 right-0"/>
+                </div>
                 <div className="w-full overflow-hidden">
                     <p className={`${theme?"text-white":"text-black"}`}>{props.name}</p>
                     <p className={`text-ellipsis whitespace-nowrap overflow-hidden ${theme?"text-stone-400":"text-stone-600"}`}>{props.message}</p>

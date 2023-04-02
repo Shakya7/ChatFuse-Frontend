@@ -14,7 +14,7 @@ const users=[
     {
         id:76434,
         name:"Sohom",
-        message:"Khankir chele"
+        message:"ONE PIECE is REAL!!"
     },
     {
         id:87234,

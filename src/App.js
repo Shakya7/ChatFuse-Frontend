@@ -5,7 +5,7 @@ import HomeScreenWindow from "./components/chat/HomeScreenWindow";
 import { useState, useEffect } from "react";
 import { createContext } from "react";
 import ChannelWindow from "./components/channel/ChannelWindow";
-import Profile from "./components/Profile";
+import ProfileWindow from "./components/profile/ProfileWindow";
 
 export const ScreenWidth=createContext();
 
@@ -29,10 +29,11 @@ function App() {
               <Route path="/chat/:id" element={<ChatWindow/>}/>
               <Route path="/channel" element={<HomeScreenWindow/>}/>
               <Route path="/channel/:id" element={<ChannelWindow/>}/>
-              <Route path="/profile" element={<Profile/>}/>
+              <Route path="/profile" element={<ProfileWindow/>}/>
             </Route>
             <Route path="/mobile-chat/:id" element={<ChatWindow/>}/>
             <Route path="/mobile-channel/:id" element={<ChannelWindow/>}/>
+            <Route path="/mobile-timeline" element={<ProfileWindow/>}/>
           </Routes>
       </ScreenWidth.Provider>
     </BrowserRouter>
