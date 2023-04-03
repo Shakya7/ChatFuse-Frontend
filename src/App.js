@@ -6,6 +6,8 @@ import { useState, useEffect } from "react";
 import { createContext } from "react";
 import ChannelWindow from "./components/channel/ChannelWindow";
 import ProfileWindow from "./components/profile/ProfileWindow";
+import LoginPage from "./components/LoginPage";
+import SignupPage from "./components/SignupPage";
 
 export const ScreenWidth=createContext();
 
@@ -34,6 +36,8 @@ function App() {
             <Route path="/mobile-chat/:id" element={<ChatWindow/>}/>
             <Route path="/mobile-channel/:id" element={<ChannelWindow/>}/>
             <Route path="/mobile-timeline" element={<ProfileWindow/>}/>
+            <Route path="/login" element={<LoginPage/>}/>
+            <Route path="/signup" element={<SignupPage/>}/>
           </Routes>
       </ScreenWidth.Provider>
     </BrowserRouter>

@@ -2,7 +2,8 @@ import { createSlice } from "@reduxjs/toolkit";
 
 
 const initialState={
-    current_section:""
+    current_section:"",
+    loggedIn:false
 }
 
 const appStateSlice=createSlice({

@@ -6,6 +6,7 @@ import { changeTheme } from "../redux/features/settings/settingSlice";
 import { useSelector, useDispatch } from "react-redux";
 import {useNavigate} from "react-router-dom";
 import { setSection } from '../redux/features/app_state/appStateSlice';
+import axios from "axios";
 
 function Navbar(props) {
 
@@ -33,7 +34,10 @@ function Navbar(props) {
 
   return (
     <div className={`${theme?"bg-[#16141b]":"bg-stone-100"} ${props.wdth} scrollbar-none border border-transparent ${theme?"border-r-stone-700":"border-r-stone-300"} h-full overflow-y-auto flex flex-col items-center`}>
-      <img className="mb-3.5" src={logo} alt="logo"/>
+      <img onClick={async()=>{
+        let result=await axios.get("http://localhost:4000");
+        console.log(result.data);
+      }} className="mb-3.5" src={logo} alt="logo"/>
       <div onClick={()=>{
         dispatch(setSection("profile"));
         navigation("/profile")
