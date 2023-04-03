@@ -4,11 +4,29 @@ import {faGoogle} from "@fortawesome/free-brands-svg-icons";
 import { useNavigate } from "react-router-dom";
 import logo from "../images/logo.png";
 import {faEyeSlash, faEye} from "@fortawesome/free-solid-svg-icons"
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { loginFunction } from "../redux/features/login/loginSlice";
+import { useDispatch, useSelector } from "react-redux";
+import ReactLoading from "react-loading";
 
 function LoginPage() { 
   const navigation=useNavigate();
   const [passwordVisible, setPasswordVisible]=useState(false);
+  const [credentials,setCredentials]=useState({
+    email:"",
+    password:"",
+  });
+  const dispatch=useDispatch();
+  const isLoading=useSelector((state)=>state.login_state.isLoading);
+  const isLoggedIn=useSelector((state)=>state.login_state.isLogged);
+
+  useEffect(()=>{
+    if(isLoggedIn){
+        
+        navigation("/");
+    }
+  },[isLoggedIn])
+
   return (
     <div className="bg-red-200 flex w-screen  min-h-screen">
         <div className="hidden sm:flex sm:w-[50%] flex justify-center item-center bg-blue-900">
@@ -35,10 +53,16 @@ function LoginPage() {
                     <div className="w-full h-[1px] bg-gray-400"/>
                 </div>
                 <div className="w-full mb-4">
-                    <input placeholder="email address..." className="w-full outline-none rounded-md py-3 px-2" type="text"/>
+                    <input onChange={(e)=>setCredentials({
+                                    ...credentials,
+                                    email:e.target.value
+                                })} placeholder="email address..." className="w-full outline-none rounded-md py-3 px-2" type="text"/>
                 </div>
                 <div className="w-full mb-4 flex items-center">
-                    <input placeholder="password..." className="w-full outline-none rounded-tl-md rounded-bl-md py-3 px-2" type={passwordVisible?"text":"password"}/>
+                    <input onChange={(e)=>setCredentials({
+                                    ...credentials,
+                                    password:e.target.value
+                                })} placeholder="password..." className="w-full outline-none rounded-tl-md rounded-bl-md py-3 px-2" type={passwordVisible?"text":"password"}/>
                     <div onClick={()=>setPasswordVisible((prev)=>!prev)} className="bg-white cursor-pointer py-3 rounded-tr-md px-2 rounded-br-md">
                         <FontAwesomeIcon className="text-teal-600" icon={passwordVisible?faEye:faEyeSlash}/>
                     </div>
@@ -47,8 +71,10 @@ function LoginPage() {
                     <p>Forgot Password?</p>
                 </div>
 
-                <div className="w-full text-white mb-6 mt-4 flex py-3 px-2 justify-center rounded-md bg-teal-600 cursor-pointer hover:bg-teal-400">
-                    <p>CONNECT</p>
+                <div onClick={()=>{
+                    dispatch(loginFunction(credentials));
+                }} className="w-full text-white mb-6 mt-4 flex py-3 px-2 justify-center rounded-md bg-teal-600 cursor-pointer hover:bg-teal-400">
+                    {isLoading?<ReactLoading width={"5%"} height={"5%"} type="spin" color="#fff"/>:<p>CONNECT</p>}
                 </div>
                 
                 <p onClick={()=>navigation("/signup")} className="cursor-pointer w-full border border-transparent flex justify-center text-sm border-t-blue-600 py-3">

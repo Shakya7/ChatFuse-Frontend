@@ -3,7 +3,6 @@ import { createSlice } from "@reduxjs/toolkit";
 
 const initialState={
     current_section:"",
-    loggedIn:false
 }
 
 const appStateSlice=createSlice({
