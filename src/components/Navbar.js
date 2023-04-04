@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useEffect } from 'react';
 import logo from "../images/logo.png";
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import {faMessage, faUserGroup, faPhone, faGear, faRightFromBracket, faSun, faMoon} from "@fortawesome/free-solid-svg-icons";
@@ -6,7 +6,6 @@ import { changeTheme } from "../redux/features/settings/settingSlice";
 import { useSelector, useDispatch } from "react-redux";
 import {useNavigate} from "react-router-dom";
 import { setSection } from '../redux/features/app_state/appStateSlice';
-import axios from "axios";
 import {logout} from "../redux/features/login/loginSlice";
 import { resetData } from '../redux/features/profile/profileSlice';
 import ReactLoading from "react-loading";

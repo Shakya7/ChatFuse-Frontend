@@ -2,10 +2,11 @@ import { useSelector } from 'react-redux';
 
 function ProfileWindow() {
   const theme=useSelector((state)=>state.settings.darkMode);
+  const {name}=useSelector((state)=>state.profile_state);
   return (
     <div className={`${theme?"bg-[#313238]":"bg-stone-200"} p-5 w-full h-screen scrollbar-thin ${theme?"scrollbar-thumb-stone-600":"scrollbar-thumb-stone-400"} scrollbar-thumb-rounded overflow-y-auto`}>
       <div className={`${theme?"text-stone-300":"text-stone-800"} mb-8`}>
-        <p className="font-nunito text-3xl">Welcome, Shakya</p>
+        <p className="font-nunito text-3xl">Welcome, {name.split(" ")[0]}</p>
         <p className="font-nunito">You can check your timeline activity over here</p>
       </div>
       <p className={`${theme?"text-stone-300":"text-stone-800"} text-3xl mb-6`}><i>Timeline</i></p>
