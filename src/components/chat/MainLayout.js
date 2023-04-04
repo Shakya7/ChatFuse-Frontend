@@ -5,6 +5,7 @@ import LoginPage from "../LoginPage";
 import { authenticate } from "../../redux/features/login/loginSlice";
 import { useEffect } from "react";
 import LoadingPage from "../LoadingPage";
+import { fetchAccountData } from "../../redux/features/profile/profileSlice";
 
 function MainLayout(){
     const theme=useSelector((state)=>state.settings.darkMode);
@@ -12,12 +13,18 @@ function MainLayout(){
 
     const dispatch=useDispatch();
     const isLoading=useSelector((state)=>state.login_state.isLoading);
+    const profileID=useSelector((state)=>state.login_state.userID);
 
     useEffect(()=>{
         if(!isLoggedIn){
             dispatch(authenticate())
         }
     },[])
+    useEffect(()=>{
+        if(isLoggedIn){
+            dispatch(fetchAccountData(profileID));
+        }
+    },[isLoggedIn])
     return(
         isLoggedIn?<div className="flex h-screen bg-red-300">
             <LeftPane/>

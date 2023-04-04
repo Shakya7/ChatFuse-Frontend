@@ -1,5 +1,6 @@
 import {createAsyncThunk, createSlice} from "@reduxjs/toolkit";
 import axios from "axios";
+import { resetData } from "../profile/profileSlice";
 
 
 const loginState={
@@ -7,6 +8,7 @@ const loginState={
     isLogged:false,
     userID:"",
     error:"",
+    isLogoutLoading:false
 }
 export const signupFunction=createAsyncThunk("/login/signupFunction",async({email,password,name},{rejectWithValue})=>{
     try{
@@ -117,17 +119,18 @@ const loginSlice=createSlice({
 
         //LOGOUT Part
         builder.addCase(logout.pending, (state)=>{
-            state.isLoading=true;
+            state.isLogoutLoading=true;
         });
         builder.addCase(logout.fulfilled, (state)=>{
             state.isLogged=false;
             state.error="";
-            state.isLoading=false;
+            state.isLogoutLoading=false;
             state.userID="";
+            
         });
         builder.addCase(logout.rejected, (state)=>{
             state.error="Failed to logout";
-            state.isLoading=false;
+            state.isLogoutLoading=false;
         })
 
         //AUTHENTICATE PART

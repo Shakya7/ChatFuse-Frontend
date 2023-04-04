@@ -7,7 +7,9 @@ import { useSelector, useDispatch } from "react-redux";
 import {useNavigate} from "react-router-dom";
 import { setSection } from '../redux/features/app_state/appStateSlice';
 import axios from "axios";
-import {logout} from "../redux/features/login/loginSlice"
+import {logout} from "../redux/features/login/loginSlice";
+import { resetData } from '../redux/features/profile/profileSlice';
+import ReactLoading from "react-loading";
 
 function Navbar(props) {
 
@@ -15,6 +17,7 @@ function Navbar(props) {
   const dispatch=useDispatch();
   const navigation=useNavigate();
   const section=useSelector((state)=>state.app_state.current_section);
+  const isLoading=useSelector((state)=>state.login_state.isLogoutLoading);
 
   //const [selected, setSelected]=useState("");
 
@@ -35,10 +38,7 @@ function Navbar(props) {
 
   return (
     <div className={`${theme?"bg-[#16141b]":"bg-stone-100"} ${props.wdth} scrollbar-none border border-transparent ${theme?"border-r-stone-700":"border-r-stone-300"} h-full overflow-y-auto flex flex-col items-center`}>
-      <img onClick={async()=>{
-        let result=await axios.get("http://localhost:4000");
-        console.log(result.data);
-      }} className="mb-3.5" src={logo} alt="logo"/>
+      <img className="mb-3.5" src={logo} alt="logo"/>
       <div onClick={()=>{
         dispatch(setSection("profile"));
         navigation("/profile")
@@ -61,10 +61,10 @@ function Navbar(props) {
       <FontAwesomeIcon onClick={()=>{
         dispatch(setSection("settings"));
       }} className={`text-xl mt-6 mb-4 transition-colors ease-in-out delay-150 text-stone-600 hover:text-sky-500 cursor-pointer ${section==="settings"?"text-sky-500":""}`} icon={faGear}/>
-      <FontAwesomeIcon onClick={()=>{
-        //console.log("Hello")
+      {isLoading?<ReactLoading width={"35%"} height={"35%"} type="spin" color="#14B8A6"/>:<FontAwesomeIcon onClick={()=>{
         dispatch(logout());
-      }} className="text-red-500 text-xl transition-colors ease-in-out delay-150 hover:text-red-700 cursor-pointer" icon={faRightFromBracket}/>
+        dispatch(resetData());
+      }} className="text-red-500 text-xl transition-colors ease-in-out delay-150 hover:text-red-700 cursor-pointer" icon={faRightFromBracket}/>}
 
       <div onClick={
         ()=>dispatch(changeTheme())
