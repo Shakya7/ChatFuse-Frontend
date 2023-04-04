@@ -7,6 +7,7 @@ import { useSelector, useDispatch } from "react-redux";
 import {useNavigate} from "react-router-dom";
 import { setSection } from '../redux/features/app_state/appStateSlice';
 import axios from "axios";
+import {logout} from "../redux/features/login/loginSlice"
 
 function Navbar(props) {
 
@@ -15,7 +16,7 @@ function Navbar(props) {
   const navigation=useNavigate();
   const section=useSelector((state)=>state.app_state.current_section);
 
-  const [selected, setSelected]=useState("");
+  //const [selected, setSelected]=useState("");
 
   useEffect(()=>{
     //if(window.location.pathname="/" || window.location.pathname="/chat")
@@ -60,7 +61,10 @@ function Navbar(props) {
       <FontAwesomeIcon onClick={()=>{
         dispatch(setSection("settings"));
       }} className={`text-xl mt-6 mb-4 transition-colors ease-in-out delay-150 text-stone-600 hover:text-sky-500 cursor-pointer ${section==="settings"?"text-sky-500":""}`} icon={faGear}/>
-      <FontAwesomeIcon className="text-red-500 text-xl transition-colors ease-in-out delay-150 hover:text-red-700 cursor-pointer" icon={faRightFromBracket}/>
+      <FontAwesomeIcon onClick={()=>{
+        //console.log("Hello")
+        dispatch(logout());
+      }} className="text-red-500 text-xl transition-colors ease-in-out delay-150 hover:text-red-700 cursor-pointer" icon={faRightFromBracket}/>
 
       <div onClick={
         ()=>dispatch(changeTheme())

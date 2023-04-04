@@ -125,8 +125,8 @@ const loginSlice=createSlice({
             state.isLoading=false;
             state.userID="";
         });
-        builder.addCase(logout.rejected, (state,action)=>{
-            state.error=action.payload;
+        builder.addCase(logout.rejected, (state)=>{
+            state.error="Failed to logout";
             state.isLoading=false;
         })
 
