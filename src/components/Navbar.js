@@ -9,6 +9,7 @@ import { setSection } from '../redux/features/app_state/appStateSlice';
 import {logout} from "../redux/features/login/loginSlice";
 import { resetData } from '../redux/features/profile/profileSlice';
 import ReactLoading from "react-loading";
+import { socket } from '../socketClient';
 
 function Navbar(props) {
 

@@ -6,6 +6,7 @@ import { authenticate } from "../../redux/features/login/loginSlice";
 import { useEffect } from "react";
 import LoadingPage from "../LoadingPage";
 import { fetchAccountData } from "../../redux/features/profile/profileSlice";
+import { socket, connectSocket } from "../../socketClient";
 
 function MainLayout(){
     const theme=useSelector((state)=>state.settings.darkMode);
@@ -23,6 +24,11 @@ function MainLayout(){
     useEffect(()=>{
         if(isLoggedIn){
             dispatch(fetchAccountData(profileID));
+            connectSocket(profileID);
+            socket.on("connect",()=>{
+                console.log(socket.id);
+            });
+
         }
     },[isLoggedIn])
     return(

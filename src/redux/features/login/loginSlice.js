@@ -1,6 +1,6 @@
 import {createAsyncThunk, createSlice} from "@reduxjs/toolkit";
 import axios from "axios";
-import { resetData } from "../profile/profileSlice";
+import { socket } from "../../../socketClient";
 
 
 const loginState={
@@ -126,7 +126,7 @@ const loginSlice=createSlice({
             state.error="";
             state.isLogoutLoading=false;
             state.userID="";
-            
+            socket.disconnect();
         });
         builder.addCase(logout.rejected, (state)=>{
             state.error="Failed to logout";
