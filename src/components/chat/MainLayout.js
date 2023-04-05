@@ -28,9 +28,12 @@ function MainLayout(){
             socket.on("connect",()=>{
                 console.log(socket.id);
             });
-
+            socket.on("welcome-message",(data)=>{
+                console.log(data);
+            })
         }
     },[isLoggedIn])
+
     return(
         isLoggedIn?<div className="flex h-screen bg-red-300">
             <LeftPane/>

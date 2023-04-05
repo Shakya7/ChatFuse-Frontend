@@ -1,7 +1,7 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import logo from "../images/logo.png";
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import {faMessage, faUserGroup, faPhone, faGear, faRightFromBracket, faSun, faMoon} from "@fortawesome/free-solid-svg-icons";
+import {faMessage, faUserGroup, faPhone, faGear, faRightFromBracket, faSun, faMoon, faPeopleGroup} from "@fortawesome/free-solid-svg-icons";
 import { changeTheme } from "../redux/features/settings/settingSlice";
 import { useSelector, useDispatch } from "react-redux";
 import {useNavigate} from "react-router-dom";
@@ -10,6 +10,8 @@ import {logout} from "../redux/features/login/loginSlice";
 import { resetData } from '../redux/features/profile/profileSlice';
 import ReactLoading from "react-loading";
 import { socket } from '../socketClient';
+import ModalContainer from './ModalContainer';
+import FriendModal from './friends/FriendModal';
 
 function Navbar(props) {
 
@@ -20,6 +22,8 @@ function Navbar(props) {
   const isLoading=useSelector((state)=>state.login_state.isLogoutLoading);
 
   //const [selected, setSelected]=useState("");
+
+  const [friendsSection, setFriendsSection]=useState(false);
 
   useEffect(()=>{
     //if(window.location.pathname="/" || window.location.pathname="/chat")
@@ -44,6 +48,9 @@ function Navbar(props) {
         navigation("/profile")
         }} className="w-10 min-w-[2.5rem] h-10 min-h-[2.5rem] rounded-full bg-red-300 transition-colors ease-in-out delay-150 cursor-pointer hover:bg-red-500"/>
       <div className={`border w-[70%] border-transparent ${theme?"border-b-stone-700":"border-b-stone-300"} flex flex-col text-xl mt-10 transition-colors ease-in-out delay-150`}>
+        <FontAwesomeIcon onClick={()=>{
+           setFriendsSection(true);
+        }} className={`mb-4 text-stone-600 cursor-pointer hover:text-sky-500`} icon={faPeopleGroup}/>
         <FontAwesomeIcon onClick={()=>{
           dispatch(setSection("chat"));
           navigation("/")
@@ -72,6 +79,7 @@ function Navbar(props) {
         <div className={`flex rounded-full p-1 justify-center items-center ${!theme?"bg-white":""}`}><FontAwesomeIcon className={`${!theme?"text-sky-500":"text-white"} text-sm`} icon={faSun}/></div>
         <div className={`flex rounded-full p-1 justify-center items-center ${theme?"bg-[#16141b]":""}`}><FontAwesomeIcon className={`${theme?"text-violet-500":"text-white"} text-sm`} icon={faMoon}/></div>
       </div>
+      {friendsSection && <ModalContainer><FriendModal closeModal={setFriendsSection}/></ModalContainer>}
     </div>  
   )
 }
