@@ -1,9 +1,10 @@
 import { useSelector, useDispatch } from "react-redux";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faCaretRight, faMagnifyingGlass, faUserPlus } from "@fortawesome/free-solid-svg-icons";
+import { faCaretRight, faMagnifyingGlass, faUserPlus, faUserCheck, faCheck, faXmark } from "@fortawesome/free-solid-svg-icons";
 import { useRef, useState } from "react";
 import { getFriends } from "../../redux/features/friend/friendSlice";
 import { clearSearchedUser } from "../../redux/features/friend/friendSlice";
+import { socket } from "../../socketClient";
 
 
 
@@ -17,13 +18,30 @@ function LoadingComponent(){
     )
 }
 
-function SearchedUser({email,name}){
+function SearchedUser({email,name,user_id}){
     const theme=useSelector((state)=>state.settings.darkMode);
+    const profileID=useSelector((state)=>state.login_state.userID);
+    const {friendRequestedUsers}=useSelector((state)=>state.friend);
+    const dispatch=useDispatch();
+
+    function checkFriendRequestAlreadySent(users,user_id){
+        for(let i=0;i<users.length;i++){
+            if(users[i].receiver._id.toString()===user_id.toString()){
+                return true;
+            }
+        } 
+        return false;
+    }
+
     return(
         <div className={`rounded-md p-1 px-3 ${theme?"bg-stone-600":"bg-stone-300"} flex flex-col mb-2 text-xs gap-1`}>
             <div className="w-[70%] flex justify-between py-1">
                 <p>{name}</p>
-                <FontAwesomeIcon className="text-green-600 place-self-end" icon={faUserPlus}/>
+                {checkFriendRequestAlreadySent(friendRequestedUsers,user_id)?
+                <FontAwesomeIcon className="text-green-600 place-self-end cursor-pointer" icon={faUserCheck}/>:
+                <FontAwesomeIcon onClick={()=>{
+                    socket.emit("send-friend-request",{receiver:user_id, sender:profileID});
+                }} className="text-green-600 place-self-end cursor-pointer" icon={faUserPlus}/>}
             </div>
             <div className=" w-[70%] py-1">{email}</div>
         </div>
@@ -32,7 +50,7 @@ function SearchedUser({email,name}){
 
 function FriendModal(props) {
   const theme=useSelector((state)=>state.settings.darkMode);
-  const {isSearchingUsers,searchedUsers}=useSelector((state)=>state.friend);
+  const {isSearchingUsers,searchedUsers, friendRequestsFromUsers}=useSelector((state)=>state.friend);
   const [searchFriendTerm, setSearchFriendTerm]=useState(false);
   const dispatch=useDispatch();
   const inputRef=useRef(null);
@@ -44,17 +62,23 @@ function FriendModal(props) {
             dispatch(clearSearchedUser());
             props.closeModal(false);
             }} className="self-end	cursor-pointer text-updateTodoText xxsm:text-2xl">X</div>
-        <div className="h-auto max-h-[50%] overflow-clip w-full">
+        <div className={`h-auto max-h-[50%] overflow-y-auto w-full scrollbar-thin scrollbar-thumb-rounded ${theme?"scrollbar-thumb-zinc-400":"scrollbar-thumb-zinc-700"}`}>
             <div className="flex items-center gap-2">
                 <FontAwesomeIcon icon={faCaretRight}/>
-                <p>{`FRIEND REQUESTS (${1})`}</p>
+                <p>{`FRIEND REQUESTS (${friendRequestsFromUsers.length})`}</p>
             </div>
-            <div className={`${theme?"bg-stone-600":"bg-stone-400"} w-full scrollbar-thin scrollbar-thumb-rounded ${theme?"scrollbar-thumb-zinc-400":"scrollbar-thumb-zinc-700"} overflow-y-auto h-auto max-h-[full] p-3`}>
-                <p>Hello</p>
-                <p>Hello</p>
-                <p>Hello</p>
-                <p>Hello</p>
-                
+            <div className={`${theme?"bg-stone-600":"bg-stone-400"} w-full flex flex-col gap-2 h-[full] p-3`}>
+            {
+            friendRequestsFromUsers.length?
+            friendRequestsFromUsers.map((user)=><p className={`text-xs ${theme?"bg-stone-700":"bg-stone-400"} rounded-md p-2 gap-4 flex flex-wrap`} key={user.sender._id}>
+                    <p>{user.sender.name}</p>
+                    <div className="flex gap-4">
+                        <FontAwesomeIcon className="text-green-500" icon={faCheck}/>
+                        <FontAwesomeIcon className="text-red-500" icon={faXmark}/>
+                    </div> 
+                </p>):
+            ""
+            }  
             </div>
         </div>
 
@@ -70,7 +94,6 @@ function FriendModal(props) {
                         if(searchFriendTerm.includes("@"))
                             dispatch(getFriends({type:"email",searchFriendTerm}));
                         else{
-                            console.log(searchFriendTerm)
                             dispatch(getFriends({type:"name",searchFriendTerm}));
                         }
                         }} className="text-stone-700 cursor-pointer pr-2" icon={faMagnifyingGlass}/>
@@ -83,7 +106,7 @@ function FriendModal(props) {
             </div>
             <div className={`p-2 w-full sm:w-[50%] overflow-y-auto scrollbar-thin scrollbar-thumb-rounded ${theme?"scrollbar-thumb-zinc-400":"scrollbar-thumb-zinc-700"}  h-full max-h-[full]`}>
             {isSearchingUsers?<div className="flex flex-col gap-2"><LoadingComponent/><LoadingComponent/></div>:
-            searchedUsers && searchedUsers.map((user)=><SearchedUser email={user.email} name={user.name} key={user._id}/>)
+            searchedUsers && searchedUsers.map((user)=><SearchedUser user_id={user._id} email={user.email} name={user.name} key={user._id}/>)
             }
             </div>
         </div>
