@@ -49,6 +49,10 @@ function MainLayout(){
                 dispatch(getAcceptedFriends(profileID));
                 dispatch(getFriendRequestedUsers(profileID));
             })
+            socket.on("request-declined",(data)=>{
+                dispatch(getUsersWhoSentRequests(profileID));
+                dispatch(getFriendRequestedUsers(profileID));
+            })
         }
     },[isLoggedIn])
 

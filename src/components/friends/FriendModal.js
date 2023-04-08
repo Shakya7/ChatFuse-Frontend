@@ -41,9 +41,11 @@ function SearchedUser({email,name,user_id,setSelectedSearchedUsr}){
                 {
                     checkFriendRequestAlreadySent(friendRequestedUsers,user_id)?
                     <FontAwesomeIcon className="text-green-600 place-self-end cursor-pointer" icon={faUserCheck}/>:
-                    isLoading?<ReactLoading width={"5%"} height={"5%"} type="spin" color="#14B8A6"/>:<FontAwesomeIcon onClick={()=>{
+                    isLoading?<ReactLoading width={"5%"} height={"5%"} type="spin" color="#14B8A6"/>:<FontAwesomeIcon onClick={async()=>{
                         setIsLoading(true);
-                        socket.emit("send-friend-request",{receiver:user_id, sender:profileID});
+                        await socket.emit("send-friend-request",{receiver:user_id, sender:profileID});
+                        setIsLoading(false);
+
                     }} className="text-green-600 place-self-end cursor-pointer" icon={faUserPlus}/>
                 }
             </div>
@@ -54,8 +56,10 @@ function SearchedUser({email,name,user_id,setSelectedSearchedUsr}){
 
 function FriendRequestComponent({user}){
     const [isLoading, setIsLoading]=useState(false);
+    const [rejectIsLoading, setRejectIsLoading]=useState(false);
     const profileID=useSelector((state)=>state.login_state.userID);
     const theme=useSelector((state)=>state.settings.darkMode);
+    const {name}=useSelector((state)=>state.profile_state)
 
     return(
         <div className={`text-xs ${theme?"bg-stone-700":"bg-stone-300"} rounded-md p-2 gap-4 flex flex-wrap`}>
@@ -64,10 +68,15 @@ function FriendRequestComponent({user}){
                 {isLoading?
                 <ReactLoading width={"1rem"} height={"1rem"} type="spin" color="#14B8A6"/>:
                 <FontAwesomeIcon onClick={()=>{
-                    setIsLoading(true)
+                    setIsLoading(true);
                     socket.emit("accept-friend-request",{sender:user.sender._id, profileID})
                 }} className="text-green-600 cursor-pointer" icon={faCheck}/>}
-                <FontAwesomeIcon onClick={()=>{}} className="text-red-500 cursor-pointer" icon={faXmark}/>
+                {rejectIsLoading?
+                <ReactLoading width={"1rem"} height={"1rem"} type="spin" color="#14B8A6"/>:
+                <FontAwesomeIcon onClick={()=>{
+                    setRejectIsLoading(true);
+                    socket.emit("decline-friend-request",{sender:user.sender._id, profileID, name})
+                }} className="text-red-500 cursor-pointer" icon={faXmark}/>}
             </div> 
         </div>
     )
