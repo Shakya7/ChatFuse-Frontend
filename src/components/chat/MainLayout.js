@@ -7,7 +7,7 @@ import { useEffect } from "react";
 import LoadingPage from "../LoadingPage";
 import { fetchAccountData } from "../../redux/features/profile/profileSlice";
 import { socket, connectSocket } from "../../socketClient";
-import {getFriendRequestedUsers, getUsersWhoSentRequests} from "../../redux/features/friend/friendSlice";
+import {getFriendRequestedUsers, getUsersWhoSentRequests, getAcceptedFriends} from "../../redux/features/friend/friendSlice";
 
 function MainLayout(){
     const theme=useSelector((state)=>state.settings.darkMode);
@@ -28,6 +28,8 @@ function MainLayout(){
             connectSocket(profileID);
             dispatch(getFriendRequestedUsers(profileID));
             dispatch(getUsersWhoSentRequests(profileID));
+            dispatch(getAcceptedFriends(profileID));
+
             socket.on("connect",()=>{
                 console.log(socket.id);
             });
@@ -40,6 +42,11 @@ function MainLayout(){
             });
             socket.on("friend-request-sent",(data)=>{
                 console.log(data);
+                dispatch(getFriendRequestedUsers(profileID));
+            });
+            socket.on("request-accepted",(data)=>{
+                dispatch(getUsersWhoSentRequests(profileID));
+                dispatch(getAcceptedFriends(profileID));
                 dispatch(getFriendRequestedUsers(profileID));
             })
         }

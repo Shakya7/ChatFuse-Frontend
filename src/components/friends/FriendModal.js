@@ -5,7 +5,7 @@ import { useRef, useState } from "react";
 import { getFriends } from "../../redux/features/friend/friendSlice";
 import { clearSearchedUser } from "../../redux/features/friend/friendSlice";
 import { socket } from "../../socketClient";
-
+import ReactLoading from "react-loading";
 
 
 function LoadingComponent(){
@@ -18,11 +18,12 @@ function LoadingComponent(){
     )
 }
 
-function SearchedUser({email,name,user_id}){
+function SearchedUser({email,name,user_id,setSelectedSearchedUsr}){
     const theme=useSelector((state)=>state.settings.darkMode);
     const profileID=useSelector((state)=>state.login_state.userID);
     const {friendRequestedUsers}=useSelector((state)=>state.friend);
-    const dispatch=useDispatch();
+    const [isLoading, setIsLoading]=useState(false);
+    
 
     function checkFriendRequestAlreadySent(users,user_id){
         for(let i=0;i<users.length;i++){
@@ -37,13 +38,37 @@ function SearchedUser({email,name,user_id}){
         <div className={`rounded-md p-1 px-3 ${theme?"bg-stone-600":"bg-stone-300"} flex flex-col mb-2 text-xs gap-1`}>
             <div className="w-[70%] flex justify-between py-1">
                 <p>{name}</p>
-                {checkFriendRequestAlreadySent(friendRequestedUsers,user_id)?
-                <FontAwesomeIcon className="text-green-600 place-self-end cursor-pointer" icon={faUserCheck}/>:
-                <FontAwesomeIcon onClick={()=>{
-                    socket.emit("send-friend-request",{receiver:user_id, sender:profileID});
-                }} className="text-green-600 place-self-end cursor-pointer" icon={faUserPlus}/>}
+                {
+                    checkFriendRequestAlreadySent(friendRequestedUsers,user_id)?
+                    <FontAwesomeIcon className="text-green-600 place-self-end cursor-pointer" icon={faUserCheck}/>:
+                    isLoading?<ReactLoading width={"5%"} height={"5%"} type="spin" color="#14B8A6"/>:<FontAwesomeIcon onClick={()=>{
+                        setIsLoading(true);
+                        socket.emit("send-friend-request",{receiver:user_id, sender:profileID});
+                    }} className="text-green-600 place-self-end cursor-pointer" icon={faUserPlus}/>
+                }
             </div>
             <div className=" w-[70%] py-1">{email}</div>
+        </div>
+    )
+}
+
+function FriendRequestComponent({user}){
+    const [isLoading, setIsLoading]=useState(false);
+    const profileID=useSelector((state)=>state.login_state.userID);
+    const theme=useSelector((state)=>state.settings.darkMode);
+
+    return(
+        <div className={`text-xs ${theme?"bg-stone-700":"bg-stone-300"} rounded-md p-2 gap-4 flex flex-wrap`}>
+            <p>{user.sender.name}</p>
+            <div className="flex gap-4">
+                {isLoading?
+                <ReactLoading width={"1rem"} height={"1rem"} type="spin" color="#14B8A6"/>:
+                <FontAwesomeIcon onClick={()=>{
+                    setIsLoading(true)
+                    socket.emit("accept-friend-request",{sender:user.sender._id, profileID})
+                }} className="text-green-600 cursor-pointer" icon={faCheck}/>}
+                <FontAwesomeIcon onClick={()=>{}} className="text-red-500 cursor-pointer" icon={faXmark}/>
+            </div> 
         </div>
     )
 }
@@ -51,9 +76,12 @@ function SearchedUser({email,name,user_id}){
 function FriendModal(props) {
   const theme=useSelector((state)=>state.settings.darkMode);
   const {isSearchingUsers,searchedUsers, friendRequestsFromUsers}=useSelector((state)=>state.friend);
+  const profileID=useSelector((state)=>state.login_state.userID);
   const [searchFriendTerm, setSearchFriendTerm]=useState(false);
   const dispatch=useDispatch();
   const inputRef=useRef(null);
+  const [clear,setClear]=useState(true);
+
 
 
   return (
@@ -70,13 +98,8 @@ function FriendModal(props) {
             <div className={`${theme?"bg-stone-600":"bg-stone-400"} w-full flex flex-col gap-2 h-[full] p-3`}>
             {
             friendRequestsFromUsers.length?
-            friendRequestsFromUsers.map((user)=><p className={`text-xs ${theme?"bg-stone-700":"bg-stone-400"} rounded-md p-2 gap-4 flex flex-wrap`} key={user.sender._id}>
-                    <p>{user.sender.name}</p>
-                    <div className="flex gap-4">
-                        <FontAwesomeIcon className="text-green-500" icon={faCheck}/>
-                        <FontAwesomeIcon className="text-red-500" icon={faXmark}/>
-                    </div> 
-                </p>):
+            friendRequestsFromUsers.map((user)=>
+                <FriendRequestComponent user={user} key={user.sender._id}/>):
             ""
             }  
             </div>
@@ -92,21 +115,23 @@ function FriendModal(props) {
                     <input ref={inputRef} onChange={(e)=>setSearchFriendTerm(e.target.value)} placeholder='Search by name or email' className={`bg-transparent pl-2 outline-0 text-sm ${theme?"text-white":"text-black"} w-[75%] h-auto placeholder:text-stone-700`}/>
                     <FontAwesomeIcon onClick={()=>{
                         if(searchFriendTerm.includes("@"))
-                            dispatch(getFriends({type:"email",searchFriendTerm}));
+                            dispatch(getFriends({type:"email",searchFriendTerm, profileID}));
                         else{
-                            dispatch(getFriends({type:"name",searchFriendTerm}));
+                            dispatch(getFriends({type:"name",searchFriendTerm, profileID}));
                         }
+                        setClear(false);
                         }} className="text-stone-700 cursor-pointer pr-2" icon={faMagnifyingGlass}/>
                 </div>
                 <div onClick={()=>{
                     inputRef.current.value="";
                     dispatch(clearSearchedUser());
                     inputRef.current.focus();
+                    setClear(true);
                     }} className="bg-red-500 cursor-pointer text-white rounded-md py-2 px-3">Clear</div>
             </div>
             <div className={`p-2 w-full sm:w-[50%] overflow-y-auto scrollbar-thin scrollbar-thumb-rounded ${theme?"scrollbar-thumb-zinc-400":"scrollbar-thumb-zinc-700"}  h-full max-h-[full]`}>
             {isSearchingUsers?<div className="flex flex-col gap-2"><LoadingComponent/><LoadingComponent/></div>:
-            searchedUsers && searchedUsers.map((user)=><SearchedUser user_id={user._id} email={user.email} name={user.name} key={user._id}/>)
+            searchedUsers.length?searchedUsers.map((user)=><SearchedUser user_id={user._id} email={user.email} name={user.name} key={user._id}/>):clear?"":<p className="text-xs">No users found or already friend</p>
             }
             </div>
         </div>

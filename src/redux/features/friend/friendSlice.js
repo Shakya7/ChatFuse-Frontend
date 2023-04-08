@@ -4,20 +4,23 @@ import axios from "axios";
 
 const friend_state={
     isSearchingUsers:false,
+    isFetchingFriends:false,
     searchedUsers:[],
     friendRequestedUsers:[],
     isLoading:false,
-    friendRequestsFromUsers:[]
+    friendRequestsFromUsers:[],
+    friends:[]
 
 }
 
-export const getFriends=createAsyncThunk("friend/getUsers",async({type,searchFriendTerm},{rejectWithValue})=>{
+export const getFriends=createAsyncThunk("friend/getUsers",async({type,searchFriendTerm,profileID},{rejectWithValue})=>{
     try{
         let users=await axios.post(`${process.env.REACT_APP_BACKEND_URL}/api/v1/users/getUsers`,{
             searchTerm:searchFriendTerm,
-            type
+            type,
+            profileID
         },{withCredentials:true});
-        if(users && users.data.users.length>0){
+        if(users){
             console.log(users.data.users);
             return users.data.users;
         }
@@ -62,6 +65,20 @@ export const getUsersWhoSentRequests=createAsyncThunk("friend/getUsersWhoSentReq
     }
 });
 
+export const getAcceptedFriends=createAsyncThunk("friend/getFriends",async(profileID,{rejectWithValue})=>{
+    try{
+        console.log(profileID)
+        let friends=await axios.post(`${process.env.REACT_APP_BACKEND_URL}/api/v1/users/getFriends`,{
+            profileID
+        },{withCredentials:true})
+        return friends.data.friends;
+    }   
+    catch(err){
+        console.log(err)
+        //****** in REDUX-THUNK error handling, rejectwithValue is used as used *//
+        return rejectWithValue("No Users");
+    }
+})
 
 const friendSlice=createSlice({
     name:"friend",
@@ -70,7 +87,7 @@ const friendSlice=createSlice({
         clearSearchedUser:(state)=>{
             state.isSearchingUsers=false;
             state.searchedUsers=[];
-        }
+        },
     },
     extraReducers:(builder)=>{
         builder.addCase(getFriends.pending,(state)=>{
@@ -102,6 +119,18 @@ const friendSlice=createSlice({
             state.friendRequestsFromUsers=action.payload;
         }).addCase(getUsersWhoSentRequests.rejected, (state)=>{
             state.isLoading=false;
+        })
+
+
+        //getting updated friends
+        builder.addCase(getAcceptedFriends.pending,(state)=>{
+            state.isFetchingFriends=true;
+        }).addCase(getAcceptedFriends.fulfilled,(state,action)=>{
+            state.friends=action.payload;
+            state.searchedUsers=state.searchedUsers.filter((user)=>!action.payload.some(friend => friend._id.toString() === user._id.toString()));
+            state.isFetchingFriends=false;
+        }).addCase(getAcceptedFriends.rejected,(state)=>{
+            state.isFetchingFriends=false;
         })
     }
 
