@@ -114,13 +114,13 @@ function FriendModal(props) {
             </div>
         </div>
 
-        <div className="w-full flex flex-col h-[50%]">
+        <div className="w-full flex flex-col h-full min-h-[50%]">
             <div className="flex mt-2 items-center gap-2">
                 <FontAwesomeIcon icon={faCaretRight}/>
                 <p>ADD FRIEND</p>
             </div>
             <div className="flex items-baseline gap-1">
-                <div className={`${theme?"bg-[#1d1923]":"bg-white"} w-full sm:w-[50%] mt-2.5 rounded-lg py-2 flex justify-between items-center`}>
+                <div className={`${theme?"bg-[#1d1923]":"bg-white"} w-full mt-2.5 rounded-lg py-2 flex justify-between items-center`}>
                     <input ref={inputRef} onChange={(e)=>setSearchFriendTerm(e.target.value)} placeholder='Search by name or email' className={`bg-transparent pl-2 outline-0 text-sm ${theme?"text-white":"text-black"} w-[75%] h-auto placeholder:text-stone-700`}/>
                     <FontAwesomeIcon onClick={()=>{
                         if(searchFriendTerm.includes("@"))
@@ -138,7 +138,7 @@ function FriendModal(props) {
                     setClear(true);
                     }} className="bg-red-500 cursor-pointer text-white rounded-md py-2 px-3">Clear</div>
             </div>
-            <div className={`p-2 w-full sm:w-[50%] overflow-y-auto scrollbar-thin scrollbar-thumb-rounded ${theme?"scrollbar-thumb-zinc-400":"scrollbar-thumb-zinc-700"}  h-full max-h-[full]`}>
+            <div className={`p-2 w-full overflow-y-auto scrollbar-thin scrollbar-thumb-rounded ${theme?"scrollbar-thumb-zinc-400":"scrollbar-thumb-zinc-700"}  h-full max-h-[full]`}>
             {isSearchingUsers?<div className="flex flex-col gap-2"><LoadingComponent/><LoadingComponent/></div>:
             searchedUsers.length?searchedUsers.map((user)=><SearchedUser user_id={user._id} email={user.email} name={user.name} key={user._id}/>):clear?"":<p className="text-xs">No users found or already friend</p>
             }
