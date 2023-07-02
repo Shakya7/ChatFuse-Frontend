@@ -8,10 +8,14 @@ import LoadingPage from "../LoadingPage";
 import { fetchAccountData } from "../../redux/features/profile/profileSlice";
 import { socket, connectSocket } from "../../socketClient";
 import {getFriendRequestedUsers, getUsersWhoSentRequests, getAcceptedFriends} from "../../redux/features/friend/friendSlice";
+import axios from "axios";
+
 
 function MainLayout(){
     const theme=useSelector((state)=>state.settings.darkMode);
     const isLoggedIn=useSelector((state)=>state.login_state.isLogged);
+
+    const friends=useSelector((state)=>state.friend.friends);
 
     const dispatch=useDispatch();
     const isLoading=useSelector((state)=>state.login_state.isLoading);
@@ -52,6 +56,23 @@ function MainLayout(){
             socket.on("request-declined",(data)=>{
                 dispatch(getUsersWhoSentRequests(profileID));
                 dispatch(getFriendRequestedUsers(profileID));
+            });
+            socket.on("friend-connected",async(data)=>{
+                let result=await axios.post(`${process.env.REACT_APP_BACKEND_URL}/api/v1/users/checkIDPartofFriends/${data.id}`,{
+                    profileID
+                })
+                console.log(result.data.status);
+                if(result.data.status)
+                    dispatch(getAcceptedFriends(profileID));
+            })
+            socket.on("friend-disconnected",async(data)=>{
+                
+                let result=await axios.post(`${process.env.REACT_APP_BACKEND_URL}/api/v1/users/checkIDPartofFriends/${data.id}`,{
+                    profileID
+                })
+                console.log(result.data.status);
+                if(result.data.status)
+                    dispatch(getAcceptedFriends(profileID));
             })
         }
     },[isLoggedIn])

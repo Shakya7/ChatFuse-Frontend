@@ -6,11 +6,13 @@ import {
   faArrowLeft,
 } from "@fortawesome/free-solid-svg-icons";
 import { useSelector } from "react-redux";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 
 function ChatWindowHeader() {
   const theme = useSelector((state) => state.settings.darkMode);
   const navigate = useNavigate();
+  const { state } = useLocation();
+  console.log(state);
 
   return (
     <header className="h-16 flex items-center backdrop-blur-lg w-full fixed px-4 relative">
@@ -29,8 +31,8 @@ function ChatWindowHeader() {
         />
         <div className="w-10 min-w-[2.5rem] h-10 min-h-[2.5rem] bg-red-300 rounded-full" />
         <div className={`${theme ? "text-stone-300" : "text-stone-800"}`}>
-          <p>Team name</p>
-          <p>24 Members</p>
+          <p>{state.chatName}</p>
+          {state.isGroup && <p>24 Members</p>} 
         </div>
       </div>
       <div

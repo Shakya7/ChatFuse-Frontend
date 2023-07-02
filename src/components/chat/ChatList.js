@@ -10,48 +10,64 @@ const users=[
     {
         id:12345,
         name:"Subarna",
-        message:"Lets party on Saturday and play cricket hahahahaha"
+        message:"Lets party on Saturday and play cricket hahahahaha",
+        isGroup:false
     },
     {
         id:76434,
         name:"Sohom",
-        message:"ONE PIECE is REAL!!"
+        message:"ONE PIECE is REAL!!",
+        isGroup:false
     },
     {
         id:87234,
         name:"Moon",
-        message:"Yoooooooo"
+        message:"Yoooooooo",
+        isGroup:false
+    },
+    {
+        id:87212,
+        name:"Supratik",
+        message:"Whats up bhai?",
+        isGroup:false
     },
     {
         id:87612,
         name:"Supratik",
-        message:"Whats up bhai?"
+        message:"Whats up bhai?",
+        isGroup:false
     },
     {
-        id:87612,
+        id:87216,
         name:"Supratik",
-        message:"Whats up bhai?"
+        message:"Whats up bhai?",
+        isGroup:false
     },
     {
-        id:87612,
+        id:87112,
         name:"Supratik",
-        message:"Whats up bhai?"
+        message:"Whats up bhai?",
+        isGroup:false
     },
     {
-        id:87612,
+        id:87602,
         name:"Supratik",
-        message:"Whats up bhai?"
+        message:"Whats up bhai?",
+        isGroup:false
     },
     {
-        id:87612,
+        id:87682,
         name:"Supratik",
-        message:"Whats up bhai?"
+        message:"Whats up bhai?",
+        isGroup:false
     },
     {
-        id:87612,
-        name:"Supratik",
-        message:"Whats up bhai?"
-    },
+        id:87119,
+        name:"Group #1",
+        message:"Testing for group last message",
+        isGroup:true
+    }
+
    
 ]
 
@@ -87,7 +103,7 @@ function ChatList() {
                         //         navigate(`/chat/${el.id}`,{state:{message:el.message}})
 
                         // }} className="bg-pink-200 cursor-pointer"><p>{el.name}</p><p>{el.message}</p></div>
-                        return <ChatHeads section="chat" key={el.id} id={el.id} message={el.message} name={el.name}/>
+                        return <ChatHeads section="chat" key={el.id} id={el.id} message={el.message} isGroup={el.isGroup} name={el.name}/>
                     })
                 }
                 </section>

@@ -20,13 +20,13 @@ function ChatHeads(props) {
         <div onClick={()=>{
             const path = window.location.pathname;
             if(screenWidth<="640")
-                navigate(`/mobile-chat/${props.id}`)
+                navigate(`/mobile-chat/${props.id}`,{state:{chatName:props.name,isGroup:props.isGroup}})
             else
-                navigate(`/chat/${props.id}`);
+                navigate(`/chat/${props.id}`,{state:{chatName:props.name,isGroup:props.isGroup}});
         }} className={`mt-2 flex justify-between px-5 py-3 items-center w-full text-sm cursor-pointer ${theme?"hover:bg-[#16141b]":"hover:bg-white"}`}>
             <div className="flex justify-start items-center w-4/5 gap-2 overflow-hidden">
                 <div className="w-10 relative min-w-[2.5rem] h-10 min-h-[2.5rem] rounded-full bg-red-300">
-                    <div className="absolute w-[10px] h-[10px] rounded-full bg-green-700 bottom-0 right-0"/>
+                    <div className={`absolute w-[10px] h-[10px] rounded-full ${props.status==="Online"?"bg-green-700":"bg-gray-600"} bottom-0 right-0`}/>
                 </div>
                 <div className="w-full overflow-hidden">
                     <p className={`${theme?"text-white":"text-black"}`}>{props.name}</p>

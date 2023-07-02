@@ -33,7 +33,7 @@ function SearchFriendsToChat() {
             <div className={`overflow-y-scroll h-full scrollbar-thin ${theme?"scrollbar-thumb-stone-600":"scrollbar-thumb-stone-400"}`}>
             {
                 friends &&
-                friends.map(friend=><ChatHeads section="friends-chat" key={friend.id} id={friend.id} name={friend.name}/>)
+                friends.map(friend=><ChatHeads section="friends-chat" key={friend._id} id={friend._id} name={friend.name} status={friend.status}/>)
             }
             </div>
             
