@@ -74,6 +74,7 @@ const users=[
 function ChatList() {
   const theme=useSelector((state)=>state.settings.darkMode);
   const dispatch=useDispatch();
+  const friends=useSelector((state)=>state.friend.friends);
   return (
         <div className={`${theme?"bg-[#29252e]":"bg-stone-200"} basis-5/6 h-full overflow-y-auto scrollbar-thin ${theme?"scrollbar-thumb-stone-600":"scrollbar-thumb-stone-400"}`}>
             <div className="">
@@ -97,13 +98,13 @@ function ChatList() {
                 </div>
                 <section className="mt-5 pb-5">
                 {
-                    users &&
-                    users.map((el)=>{
+                    friends &&
+                    friends.map((el)=>{
                         // return <div key={el.id} onClick={()=>{
                         //         navigate(`/chat/${el.id}`,{state:{message:el.message}})
 
                         // }} className="bg-pink-200 cursor-pointer"><p>{el.name}</p><p>{el.message}</p></div>
-                        return <ChatHeads section="chat" key={el.id} id={el.id} message={el.message} isGroup={el.isGroup} name={el.name}/>
+                        return <ChatHeads section="chat" key={el.id} id={el.id} message={el.message} isGroup={el.isGroup} name={el.name} status={el.status}/>
                     })
                 }
                 </section>
