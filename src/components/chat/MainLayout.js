@@ -8,6 +8,7 @@ import LoadingPage from "../LoadingPage";
 import { fetchAccountData } from "../../redux/features/profile/profileSlice";
 import { socket, connectSocket } from "../../socketClient";
 import {getFriendRequestedUsers, getUsersWhoSentRequests, getAcceptedFriends} from "../../redux/features/friend/friendSlice";
+import { receiveMessage, addTypingUser, removeTypingUser, getUserConversations } from "../../redux/features/chat/chatSlice";
 import axios from "axios";
 
 
@@ -33,6 +34,7 @@ function MainLayout(){
             dispatch(getFriendRequestedUsers(profileID));
             dispatch(getUsersWhoSentRequests(profileID));
             dispatch(getAcceptedFriends(profileID));
+            dispatch(getUserConversations());
 
             socket.on("connect",()=>{
                 console.log(socket.id);
@@ -74,8 +76,50 @@ function MainLayout(){
                 if(result.data.status)
                     dispatch(getAcceptedFriends(profileID));
             })
+
+            // Real-time messaging listeners
+            socket.on("receive-message", (data) => {
+                console.log("Message received:", data);
+                dispatch(receiveMessage(data));
+                // Refresh conversations list
+                dispatch(getUserConversations());
+            });
+
+            socket.on("user-typing", (data) => {
+                console.log("User typing:", data);
+                dispatch(addTypingUser(data.senderId));
+            });
+
+            socket.on("user-stop-typing", (data) => {
+                console.log("User stopped typing:", data);
+                dispatch(removeTypingUser(data.senderId));
+            });
+
+            socket.on("message-sent", (data) => {
+                console.log("Message sent successfully:", data);
+            });
+
+            socket.on("message-error", (data) => {
+                console.error("Message error:", data);
+            });
+
+            return ()=>{
+                socket.off("receive-message");
+                socket.off("user-typing");
+                socket.off("user-stop-typing");
+                socket.off("message-sent");
+                socket.off("message-error");
+                socket.off("connect");
+                socket.off("welcome-message");
+                socket.off("new-friend-request");
+                socket.off("friend-request-sent");
+                socket.off("request-accepted");
+                socket.off("request-declined");
+                socket.off("friend-connected");
+                socket.off("friend-disconnected");
+            }
         }
-    },[isLoggedIn])
+    },[isLoggedIn, profileID, dispatch])
 
     return(
         isLoggedIn?<div className="flex h-screen bg-red-300">

@@ -4,6 +4,7 @@ import appStateReducer from "./features/app_state/appStateSlice";
 import loginReducer from "./features/login/loginSlice";
 import profileReducer from "./features/profile/profileSlice";
 import friendReducer from "./features/friend/friendSlice";
+import chatReducer from "./features/chat/chatSlice";
 
 export const store=configureStore({
     reducer:{
@@ -11,6 +12,7 @@ export const store=configureStore({
         app_state:appStateReducer,
         login_state:loginReducer,
         profile_state:profileReducer,
-        friend:friendReducer
+        friend:friendReducer,
+        chat:chatReducer
     }
 })

@@ -20,7 +20,7 @@ function LeftPane(){
             dispatch(setSection("chat"));
     },[])
     return(
-        <div className="flex basis-full sm:basis-2/5 xmd:basis-1/3 h-full bg-blue-500 overflow-hidden">
+        <div className="flex basis-full sm:basis-2/5 xmd:basis-1/3 h-full overflow-hidden backdrop-blur-md" style={{backgroundColor: "rgba(59, 130, 246, 0.15)"}}>
             <Navbar wdth={"basis-1/6"}/>
             {section==="chat"?<ChatList/>:section==="search-friends-to-chat"?<SearchFriendsToChat/>:section==="channel"?<ServerLayout/>:section==="profile"?<ProfileComponent/>:"No"}
         </div>

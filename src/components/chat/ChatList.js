@@ -1,80 +1,24 @@
-import React from 'react'
+import React, { useEffect } from 'react'
 import ChatHeads from './ChatHeads';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faPenToSquare, faMagnifyingGlass } from '@fortawesome/free-solid-svg-icons';
 import { useSelector, useDispatch } from 'react-redux';
 import { setSection } from '../../redux/features/app_state/appStateSlice';
+import { getUserConversations } from '../../redux/features/chat/chatSlice';
 
-
-const users=[
-    {
-        id:12345,
-        name:"Subarna",
-        message:"Lets party on Saturday and play cricket hahahahaha",
-        isGroup:false
-    },
-    {
-        id:76434,
-        name:"Sohom",
-        message:"ONE PIECE is REAL!!",
-        isGroup:false
-    },
-    {
-        id:87234,
-        name:"Moon",
-        message:"Yoooooooo",
-        isGroup:false
-    },
-    {
-        id:87212,
-        name:"Supratik",
-        message:"Whats up bhai?",
-        isGroup:false
-    },
-    {
-        id:87612,
-        name:"Supratik",
-        message:"Whats up bhai?",
-        isGroup:false
-    },
-    {
-        id:87216,
-        name:"Supratik",
-        message:"Whats up bhai?",
-        isGroup:false
-    },
-    {
-        id:87112,
-        name:"Supratik",
-        message:"Whats up bhai?",
-        isGroup:false
-    },
-    {
-        id:87602,
-        name:"Supratik",
-        message:"Whats up bhai?",
-        isGroup:false
-    },
-    {
-        id:87682,
-        name:"Supratik",
-        message:"Whats up bhai?",
-        isGroup:false
-    },
-    {
-        id:87119,
-        name:"Group #1",
-        message:"Testing for group last message",
-        isGroup:true
-    }
-
-   
-]
 
 function ChatList() {
   const theme=useSelector((state)=>state.settings.darkMode);
   const dispatch=useDispatch();
-  const friends=useSelector((state)=>state.friend.friends);
+  const conversations=useSelector((state)=>state.chat.conversations);
+  const currentUser=useSelector((state)=>state.login_state.userID);
+  const isLoading=useSelector((state)=>state.chat.isLoading);
+
+  // Fetch conversations on component mount
+  useEffect(()=>{
+    dispatch(getUserConversations());
+  },[dispatch])
+
   return (
         <div className={`${theme?"bg-[#29252e]":"bg-stone-200"} basis-5/6 h-full overflow-y-auto scrollbar-thin ${theme?"scrollbar-thumb-stone-600":"scrollbar-thumb-stone-400"}`}>
             <div className="">
@@ -85,7 +29,7 @@ function ChatList() {
                     <div className="flex justify-between items-baseline">
                         <div className="flex flex-col xmd:flex-row gap-3 items-baseline font-nunito">
                             <p className={`text-2xl ${theme?"text-white":"text-black"}`}>Messages</p>
-                            <b className="text-teal-500">48 New</b>
+                            <b className="text-teal-500">{conversations?.length || 0} Chats</b>
                         </div>
                         <FontAwesomeIcon onClick={()=>{
                             dispatch(setSection("search-friends-to-chat"));
@@ -98,14 +42,34 @@ function ChatList() {
                 </div>
                 <section className="mt-5 pb-5">
                 {
-                    friends &&
-                    friends.map((el)=>{
-                        // return <div key={el.id} onClick={()=>{
-                        //         navigate(`/chat/${el.id}`,{state:{message:el.message}})
-
-                        // }} className="bg-pink-200 cursor-pointer"><p>{el.name}</p><p>{el.message}</p></div>
-                        return <ChatHeads section="chat" key={el.id} id={el.id} message={el.message} isGroup={el.isGroup} name={el.name} status={el.status}/>
-                    })
+                    isLoading?(
+                        <div className="flex justify-center items-center p-5">
+                            <p className={theme?"text-stone-400":"text-stone-600"}>Loading conversations...</p>
+                        </div>
+                    ):conversations && conversations.length>0?(
+                        conversations.map((conversation)=>{
+                            // Get the other user in the conversation
+                            const otherUser=conversation.users.find((user)=>user._id!==currentUser);
+                            const lastMessagePreview=conversation.latestMessage?.content || "No messages yet";
+                            const lastMessageTime=conversation.latestMessage?.createdAt?new Date(conversation.latestMessage.createdAt).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}):"";
+                            
+                            return (
+                                <ChatHeads 
+                                    section="chat" 
+                                    key={conversation._id} 
+                                    id={conversation._id} 
+                                    message={lastMessagePreview} 
+                                    isGroup={conversation.groupChat} 
+                                    name={otherUser?.name || "User"} 
+                                    status={otherUser?.status || "Offline"}
+                                />
+                            )
+                        })
+                    ):(
+                        <div className="flex justify-center items-center p-5">
+                            <p className={theme?"text-stone-400":"text-stone-600"}>No conversations yet. Start by sending a friend request!</p>
+                        </div>
+                    )
                 }
                 </section>
             </div>
