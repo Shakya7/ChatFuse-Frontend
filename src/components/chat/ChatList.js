@@ -19,6 +19,20 @@ function ChatList() {
     dispatch(getUserConversations());
   },[dispatch])
 
+  // Sort conversations so that the most recent sender/receiver message is stacked on top
+  const sortedConversations = React.useMemo(() => {
+    if (!conversations) return [];
+    return [...conversations].sort((a, b) => {
+      const timeA = a.latestMessage?.createdAt 
+        ? new Date(a.latestMessage.createdAt).getTime() 
+        : new Date(a.updatedAt || a.createdAt || 0).getTime();
+      const timeB = b.latestMessage?.createdAt 
+        ? new Date(b.latestMessage.createdAt).getTime() 
+        : new Date(b.updatedAt || b.createdAt || 0).getTime();
+      return timeB - timeA;
+    });
+  }, [conversations]);
+
   return (
         <div className={`${theme?"bg-[#29252e]":"bg-stone-200"} basis-5/6 h-full overflow-y-auto scrollbar-thin ${theme?"scrollbar-thumb-stone-600":"scrollbar-thumb-stone-400"}`}>
             <div className="">
@@ -46,8 +60,8 @@ function ChatList() {
                         <div className="flex justify-center items-center p-5">
                             <p className={theme?"text-stone-400":"text-stone-600"}>Loading conversations...</p>
                         </div>
-                    ):conversations && conversations.length>0?(
-                        conversations.map((conversation)=>{
+                    ):sortedConversations && sortedConversations.length>0?(
+                        sortedConversations.map((conversation)=>{
                             // Get the other user in the conversation
                             const otherUser=conversation.users.find((user)=>user._id!==currentUser);
                             const lastMessagePreview=conversation.latestMessage?.content || "No messages yet";
