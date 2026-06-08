@@ -12,7 +12,6 @@ function FriendComponent({name,email}){
 function FriendListsModal(props) {
   const friends=useSelector((state)=>state.friend.friends);
   const theme=useSelector((state)=>state.settings.darkMode);
-  console.log(friends);
   return (
     <>
         <div onClick={e=>{
