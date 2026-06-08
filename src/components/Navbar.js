@@ -1,8 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import logo from "../images/logo.png";
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import {faMessage, faUserGroup, faPhone, faGear, faRightFromBracket, faSun, faMoon, faPeopleGroup} from "@fortawesome/free-solid-svg-icons";
-import { changeTheme } from "../redux/features/settings/settingSlice";
+import {faMessage, faUserGroup, faPhone, faGear, faRightFromBracket, faSun, faMoon, faPeopleGroup, faPenNib} from "@fortawesome/free-solid-svg-icons";
+import { changeTheme, toggleComicMode } from "../redux/features/settings/settingSlice";
 import { useSelector, useDispatch } from "react-redux";
 import {useNavigate} from "react-router-dom";
 import { setSection } from '../redux/features/app_state/appStateSlice';
@@ -16,6 +16,7 @@ import FriendModal from './friends/FriendModal';
 function Navbar(props) {
 
   const theme=useSelector((state)=>state.settings.darkMode);
+  const comicMode=useSelector((state)=>state.settings.comicMode);
   const dispatch=useDispatch();
   const navigation=useNavigate();
   const section=useSelector((state)=>state.app_state.current_section);
@@ -68,6 +69,17 @@ function Navbar(props) {
       <FontAwesomeIcon onClick={()=>{
         dispatch(setSection("settings"));
       }} className={`text-xl mt-6 mb-4 transition-colors ease-in-out delay-150 text-stone-600 hover:text-sky-500 cursor-pointer ${section==="settings"?"text-sky-500":""}`} icon={faGear}/>
+      {/* Comic mode toggle — only visible in light mode */}
+      {!theme && (
+        <FontAwesomeIcon
+          onClick={()=>dispatch(toggleComicMode())}
+          title="Toggle Comic Mode"
+          className={`text-xl mb-4 transition-colors ease-in-out delay-150 cursor-pointer ${
+            comicMode?"text-orange-500 drop-shadow-lg":"text-stone-400 hover:text-orange-400"
+          }`}
+          icon={faPenNib}
+        />
+      )}
       {isLoading?<ReactLoading width={"35%"} height={"35%"} type="spin" color="#14B8A6"/>:<FontAwesomeIcon onClick={()=>{
         dispatch(logout());
         dispatch(resetData());

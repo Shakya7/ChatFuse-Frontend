@@ -21,6 +21,7 @@ function ChatWindow() {
     const isLoading=useSelector((state)=>state.chat.isLoading);
     const currentConversation=useSelector((state)=>state.chat.currentConversation);
     const loginID=useSelector((state)=>state.login_state.userID);
+    const comicMode=useSelector((state)=>state.settings.comicMode);
     const messagesEndRef=useRef(null);
     const scrollContainerRef=useRef(null);
 
@@ -70,7 +71,21 @@ function ChatWindow() {
     },[messages.length])
 
     return (
-        <div className="flex flex-col h-screen" style={{backgroundImage:`url(${theme?dark_theme_1:light_theme_1})`,backgroundSize:"cover",backgroundRepeat:"no-repeat"}}>
+        <div className="flex flex-col h-screen" style={{
+            backgroundImage: comicMode ? "none" : `url(${theme?dark_theme_1:light_theme_1})`,
+            backgroundColor: comicMode ? "#ffffff" : "transparent",
+            backgroundSize:"cover",
+            backgroundRepeat:"no-repeat"
+        }}>
+            {/* Comic mode SVG filter for hand-drawn border effect */}
+            {comicMode && (
+                <svg width="0" height="0" style={{position:"absolute"}}>
+                    <filter id="comic-wobble">
+                        <feTurbulence type="fractalNoise" baseFrequency="0.035" numOctaves="3" result="noise"/>
+                        <feDisplacementMap in="SourceGraphic" in2="noise" scale="3" xChannelSelector="R" yChannelSelector="G"/>
+                    </filter>
+                </svg>
+            )}
             <div ref={scrollContainerRef} className="h-[90%] flex pb-6 flex-col overflow-y-auto scrollbar-hide">
                 <ChatWindowHeader/>
                 <div className={`mt-[2rem] px-4 flex flex-col gap-4 ${theme?"text-stone-300":"text-stone-800"}`}>
@@ -83,17 +98,49 @@ function ChatWindow() {
                             <p>No messages yet. Start the conversation!</p>
                         </div>
                     ):(
-                        messages.map((msg)=>(
-                            <div key={msg._id} className={`flex ${msg.sender._id===loginID?"justify-end":"justify-start"}`}>
-                                <div className={`max-w-xs px-4 py-2 rounded-lg ${msg.sender._id===loginID?"bg-teal-600 text-white":"bg-gray-600 text-gray-100"}`}>
-                                    {msg.sender._id!==loginID && <p className="text-xs font-semibold mb-1">{msg.sender.name}</p>}
-                                    <p className="break-words">{msg.content}</p>
-                                    <p className={`text-xs mt-1 ${msg.sender._id===loginID?"text-teal-100":"text-gray-400"}`}>
-                                        {new Date(msg.createdAt).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}
-                                    </p>
+                        messages.map((msg)=>{
+                            const isSender = msg.sender._id===loginID;
+                            return (
+                                <div key={msg._id} className={`flex ${isSender?"justify-end":"justify-start"}`}>
+                                    {comicMode ? (
+                                        // ── COMIC / HAND-DRAWN BUBBLE ──
+                                        <div style={{
+                                            fontFamily: "'Caveat', cursive",
+                                            fontSize: "1.15rem",
+                                            fontWeight: 500,
+                                            background: isSender ? "#e8f4ff" : "#ffffff",
+                                            border: `2.5px solid ${isSender ? "#1a6fd4" : "#1a1a1a"}`,
+                                            borderRadius: isSender
+                                                ? "18px 18px 4px 18px"
+                                                : "18px 18px 18px 4px",
+                                            filter: "url(#comic-wobble)",
+                                            padding: "10px 16px",
+                                            maxWidth: "18rem",
+                                            position: "relative",
+                                            boxShadow: isSender
+                                                ? "3px 3px 0px #1a6fd4"
+                                                : "3px 3px 0px #1a1a1a",
+                                            color: isSender ? "#0d3d7a" : "#111111",
+                                        }}>
+                                            {!isSender && <p style={{fontWeight:700, fontSize:"0.85rem", marginBottom:"2px", fontFamily:"'Caveat', cursive"}}>{msg.sender.name}</p>}
+                                            <p style={{wordBreak:"break-word", lineHeight:1.3}}>{msg.content}</p>
+                                            <p style={{fontSize:"0.75rem", marginTop:"4px", opacity:0.6, textAlign:"right"}}>
+                                                {new Date(msg.createdAt).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}
+                                            </p>
+                                        </div>
+                                    ) : (
+                                        // ── REGULAR BUBBLE ──
+                                        <div className={`max-w-xs px-4 py-2 rounded-lg ${isSender?"bg-teal-600 text-white":"bg-gray-600 text-gray-100"}`}>
+                                            {!isSender && <p className="text-xs font-semibold mb-1">{msg.sender.name}</p>}
+                                            <p className="break-words">{msg.content}</p>
+                                            <p className={`text-xs mt-1 ${isSender?"text-teal-100":"text-gray-400"}`}>
+                                                {new Date(msg.createdAt).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}
+                                            </p>
+                                        </div>
+                                    )}
                                 </div>
-                            </div>
-                        ))
+                            );
+                        })
                     )}
                     <div ref={messagesEndRef}/>
                 </div>
