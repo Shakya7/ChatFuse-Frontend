@@ -179,6 +179,34 @@ const chatSlice = createSlice({
             state.currentConversation = null;
             state.typingUsers = [];
         },
+        // Create temporary conversation locally in Redux (does NOT appear in ChatList)
+        createTemporaryConversation: (state, action) => {
+            const { friend, currentUser } = action.payload;
+            const tempId = `temp-${friend._id}`;
+
+            // Only set currentConversation and selectedConversation.
+            // Do NOT push to state.conversations — the temp chat must NOT appear in ChatList.
+            // The real conversation is added only when the first message is actually sent.
+            state.selectedConversation = tempId;
+            state.currentConversation = {
+                _id: tempId,
+                groupChat: false,
+                users: [
+                    { _id: currentUser.id, name: currentUser.name },
+                    { _id: friend._id, name: friend.name, email: friend.email, status: friend.status || "Offline" }
+                ],
+                latestMessage: null,
+                temp: true
+            };
+        },
+        // Explicitly add a conversation to the ChatList (called after first message is sent)
+        addConversationToList: (state, action) => {
+            const exists = state.conversations.some(c => c._id === action.payload._id);
+            if (!exists) {
+                // Prepend so it appears at the top of the list
+                state.conversations.unshift(action.payload);
+            }
+        },
     },
     extraReducers: (builder) => {
         // Get or create conversation
@@ -191,6 +219,9 @@ const chatSlice = createSlice({
             state.currentConversation = action.payload;
             state.selectedConversation = action.payload._id;
             state.error = "";
+            // Do NOT add to conversations here.
+            // The conversation is added to ChatList only after the first message is
+            // successfully sent, via the explicit addConversationToList action.
         });
         builder.addCase(getOrCreateConversation.rejected, (state, action) => {
             state.isLoading = false;
@@ -288,7 +319,9 @@ export const {
     addTypingUser,
     removeTypingUser,
     clearMessages,
-    clearChat
+    clearChat,
+    createTemporaryConversation,
+    addConversationToList
 } = chatSlice.actions;
 
 export default chatSlice.reducer;

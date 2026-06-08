@@ -1,14 +1,16 @@
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faPaperclip, faPaperPlane, faMicrophone, faFile } from '@fortawesome/free-solid-svg-icons';
 import { useSelector, useDispatch } from 'react-redux';
-import { useState, useRef, useEffect } from 'react';
-import { sendMessage, setIsTyping } from '../../redux/features/chat/chatSlice';
+import { useState, useRef } from 'react';
+import { sendMessage, setIsTyping, getOrCreateConversation, addConversationToList } from '../../redux/features/chat/chatSlice';
 import { socket } from '../../socketClient';
+import { useNavigate } from 'react-router-dom';
 
 function ChatSendFooter() {
     
     const theme=useSelector((state)=>state.settings.darkMode);
     const dispatch=useDispatch();
+    const navigate=useNavigate();
     const isSendingMessage=useSelector((state)=>state.chat.isSendingMessage);
     const currentConversation=useSelector((state)=>state.chat.currentConversation);
     const selectedConversation=useSelector((state)=>state.chat.selectedConversation);
@@ -30,8 +32,8 @@ function ChatSendFooter() {
         if(currentConversation?.users){
             const otherUser=currentConversation.users.find((user)=>user._id!==currentUser);
             
-            if(otherUser){
-                // Emit typing event
+            if(otherUser && selectedConversation && !String(selectedConversation).startsWith("temp-")){
+                // Emit typing event (only for real conversations)
                 socket.emit("typing",{
                     conversationId:selectedConversation,
                     recipientId:otherUser._id
@@ -57,19 +59,38 @@ function ChatSendFooter() {
         }
 
         try{
-            const otherUser=currentConversation?.users?.find((user)=>user._id!==currentUser);
-            
+            let realConversationId = selectedConversation;
+            let otherUser = currentConversation?.users?.find((user)=>user._id!==currentUser);
+            let realConvData = null; // holds the real conversation when coming from a temp chat
+
+            // If this is a temporary conversation, persist it to the backend first
+            if(String(selectedConversation).startsWith("temp-")){
+                if(!otherUser) return;
+                const realConv = await dispatch(getOrCreateConversation(otherUser._id)).unwrap();
+                realConvData = realConv;
+                realConversationId = realConv._id;
+                otherUser = realConv.users?.find((user)=>user._id!==currentUser);
+                // Update the URL to reflect the real conversation ID
+                navigate(`/chat/${realConversationId}`, { replace: true, state: { chatName: otherUser?.name, isGroup: false } });
+            }
+
             // Send message via Redux thunk and get the message object
             const sentMessage = await dispatch(sendMessage({
-                conversationId:selectedConversation,
-                content:messageInput
+                conversationId: realConversationId,
+                content: messageInput
             })).unwrap();
+
+            // If this was the very first message in a new conversation,
+            // now add it to ChatList (only after the message is confirmed sent)
+            if(realConvData){
+                dispatch(addConversationToList({ ...realConvData, latestMessage: sentMessage }));
+            }
 
             // Emit full message via socket to recipient
             if(otherUser && sentMessage){
                 socket.emit("send-message",{
-                    conversationId:selectedConversation,
-                    recipientId:otherUser._id,
+                    conversationId: realConversationId,
+                    recipientId: otherUser._id,
                     message: sentMessage
                 });
             }
@@ -77,11 +98,11 @@ function ChatSendFooter() {
             // Clear input
             setMessageInput("");
 
-            // Stop typing indicator
-            if(otherUser){
+            // Stop typing indicator (only relevant for pre-existing conversations)
+            if(otherUser && !String(selectedConversation).startsWith("temp-")){
                 socket.emit("stop-typing",{
-                    conversationId:selectedConversation,
-                    recipientId:otherUser._id
+                    conversationId: realConversationId,
+                    recipientId: otherUser._id
                 });
             }
         }catch(err){

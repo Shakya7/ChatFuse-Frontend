@@ -4,7 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import { useSelector, useDispatch } from 'react-redux';
 import ChatSendFooter from './ChatSendFooter';
 import ChatWindowHeader from './ChatWindowHeader';
-import { getMessages, getConversation, setSelectedConversation, clearChat } from '../../redux/features/chat/chatSlice';
+import { getMessages, getConversation, setSelectedConversation, clearChat, clearMessages } from '../../redux/features/chat/chatSlice';
 import { socket } from '../../socketClient';
 
 import dark_theme_1 from "../../images/dark_theme_main_wallpaper.jpg";
@@ -25,10 +25,10 @@ function ChatWindow() {
     const messagesEndRef = useRef(null);
     const scrollContainerRef = useRef(null);
 
-    // Extract conversationID from URL
+    // Extract conversationID from URL — supports both real mongo IDs and temp-<userId> IDs
     const conversationID = useMemo(() => {
         const path = window.location.pathname;
-        const match = path.match(/chat\/([a-f0-9]+)/);
+        const match = path.match(/(?:mobile-chat|chat)\/(.+)/);
         return match ? match[1] : "";
     }, [window.location.pathname]);
 
@@ -43,13 +43,17 @@ function ChatWindow() {
     }, [screenWidth, navigate])
 
     // Load conversation details and messages when conversation ID changes
+    // Skip API calls for temp IDs (local-only pending conversations)
     useEffect(() => {
-        if (conversationID) {
-            console.log("Loading conversation and messages for:", conversationID);
+        if (conversationID && !conversationID.startsWith("temp-")) {
             dispatch(setSelectedConversation(conversationID));
-            // Fetch both conversation details (with other user info) and messages
             dispatch(getConversation(conversationID));
             dispatch(getMessages(conversationID));
+        } else if (conversationID && conversationID.startsWith("temp-")) {
+            // Same ChatWindow component stays mounted when switching to a temp conversation,
+            // so the unmount cleanup never fires. Manually wipe stale messages so the
+            // new-conversation window opens blank.
+            dispatch(clearMessages());
         }
     }, [conversationID, dispatch])
 

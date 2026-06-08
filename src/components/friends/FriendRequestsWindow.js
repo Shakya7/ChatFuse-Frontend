@@ -13,7 +13,7 @@ import {
     faMessage
 } from "@fortawesome/free-solid-svg-icons";
 import { getFriends, clearSearchedUser, getAcceptedFriends, getUsersWhoSentRequests, getFriendRequestedUsers } from "../../redux/features/friend/friendSlice";
-import { getOrCreateConversation } from "../../redux/features/chat/chatSlice";
+import { getOrCreateConversation, createTemporaryConversation, setSelectedConversation } from "../../redux/features/chat/chatSlice";
 import { setSection } from "../../redux/features/app_state/appStateSlice";
 import { useNavigate } from "react-router-dom";
 import { socket } from "../../socketClient";
@@ -34,6 +34,7 @@ function FriendRequestsWindow() {
     const comicMode = useSelector((state) => state.settings.comicMode);
     const profileID = useSelector((state) => state.login_state.userID);
     const { name } = useSelector((state) => state.profile_state);
+    const conversations = useSelector((state) => state.chat.conversations);
     const navigate = useNavigate();
     const dispatch = useDispatch();
 
@@ -78,13 +79,24 @@ function FriendRequestsWindow() {
         setClear(true);
     };
 
-    const handleStartChat = async (friendId) => {
-        try {
-            await dispatch(getOrCreateConversation(friendId)).unwrap();
+    const handleStartChat = async (friend) => {
+        // Find if there is an existing conversation in state
+        const existingConv = conversations?.find(
+            (c) => !c.groupChat && c.users.some((user) => user._id === friend._id)
+        );
+
+        if (existingConv) {
+            dispatch(setSelectedConversation(existingConv._id));
             dispatch(setSection("chat"));
-            navigate(`/chat/${friendId}`);
-        } catch (err) {
-            console.error("Error starting chat:", err);
+            navigate(`/chat/${existingConv._id}`, { state: { chatName: friend.name, isGroup: false } });
+        } else {
+            // Create a temporary conversation in Redux (not persisted on backend yet)
+            dispatch(createTemporaryConversation({
+                friend,
+                currentUser: { id: profileID, name: name }
+            }));
+            dispatch(setSection("chat"));
+            navigate(`/chat/temp-${friend._id}`, { state: { chatName: friend.name, isGroup: false } });
         }
     };
 
@@ -189,7 +201,7 @@ function FriendRequestsWindow() {
                                         </div>
                                     </div>
                                     <button 
-                                        onClick={() => handleStartChat(friend._id)}
+                                        onClick={() => handleStartChat(friend)}
                                         title="Send Message"
                                         className={`p-2.5 rounded-full transition-all ${
                                             comicMode 

@@ -12,7 +12,23 @@ function ChatWindowHeader() {
   const theme = useSelector((state) => state.settings.darkMode);
   const navigate = useNavigate();
   const { state } = useLocation();
-  console.log(state);
+  const currentConversation = useSelector((state) => state.chat.currentConversation);
+  const currentUser = useSelector((state) => state.login_state.userID);
+
+  // Fallback to Redux store values if location state is null (e.g. on direct link, refresh)
+  let chatName = state?.chatName;
+  let isGroup = state?.isGroup;
+
+  if (currentConversation) {
+    if (currentConversation.groupChat) {
+      chatName = currentConversation.name || "Group Chat";
+      isGroup = true;
+    } else {
+      const otherUser = currentConversation.users?.find((user) => user._id !== currentUser);
+      chatName = otherUser?.name || "User";
+      isGroup = false;
+    }
+  }
 
   return (
     <header className="h-16 flex items-center backdrop-blur-lg w-full fixed px-4 relative">
@@ -31,8 +47,8 @@ function ChatWindowHeader() {
         />
         <div className="w-10 min-w-[2.5rem] h-10 min-h-[2.5rem] bg-red-300 rounded-full" />
         <div className={`${theme ? "text-stone-300" : "text-stone-800"}`}>
-          <p>{state.chatName}</p>
-          {state.isGroup && <p>24 Members</p>} 
+          <p>{chatName || "Loading..."}</p>
+          {isGroup && <p>24 Members</p>} 
         </div>
       </div>
       <div

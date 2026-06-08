@@ -5,7 +5,7 @@ import { useSelector, useDispatch } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
 import { ScreenWidth } from '../../App';
 import { useContext, useEffect } from 'react';
-import { getOrCreateConversation, setSelectedConversation } from '../../redux/features/chat/chatSlice';
+import { getOrCreateConversation, setSelectedConversation, createTemporaryConversation } from '../../redux/features/chat/chatSlice';
 import { setSection } from '../../redux/features/app_state/appStateSlice';
 
 function ChatHeads(props) {
@@ -13,6 +13,9 @@ function ChatHeads(props) {
     const dispatch=useDispatch();
     const theme=useSelector((state)=>state.settings.darkMode);
     const screenWidth=useContext(ScreenWidth);
+    const conversations = useSelector((state) => state.chat.conversations);
+    const profileID = useSelector((state) => state.login_state.userID);
+    const { name: currentUserName } = useSelector((state) => state.profile_state);
 
     useEffect(()=>{
         const path = window.location.pathname;
@@ -22,21 +25,33 @@ function ChatHeads(props) {
 
     const handleChatClick=async()=>{
         if(props.section==="friends-chat"){
-            // Create/get conversation with this friend
-            try{
-                await dispatch(getOrCreateConversation(props.id)).unwrap();
+            // Check if there is already an existing conversation with this friend
+            const existingConv = conversations?.find(
+                (c) => !c.groupChat && c.users.some((u) => u._id === props.id)
+            );
+
+            if (existingConv) {
+                dispatch(setSelectedConversation(existingConv._id));
                 dispatch(setSection("chat"));
-                const path = window.location.pathname;
                 if(screenWidth<="640")
-                    navigate(`/mobile-chat/${props.id}`,{state:{chatName:props.name,isGroup:props.isGroup}})
+                    navigate(`/mobile-chat/${existingConv._id}`,{state:{chatName:props.name,isGroup:props.isGroup}})
                 else
-                    navigate(`/chat/${props.id}`,{state:{chatName:props.name,isGroup:props.isGroup}});
-            }catch(err){
-                console.error("Error creating conversation:",err);
+                    navigate(`/chat/${existingConv._id}`,{state:{chatName:props.name,isGroup:props.isGroup}});
+            } else {
+                // Initialize temporary conversation in state (not persisted on backend yet)
+                dispatch(createTemporaryConversation({
+                    friend: { _id: props.id, name: props.name, status: props.status || "Offline" },
+                    currentUser: { id: profileID, name: currentUserName }
+                }));
+                dispatch(setSection("chat"));
+                if(screenWidth<="640")
+                    navigate(`/mobile-chat/temp-${props.id}`,{state:{chatName:props.name,isGroup:props.isGroup}})
+                else
+                    navigate(`/chat/temp-${props.id}`,{state:{chatName:props.name,isGroup:props.isGroup}});
             }
         }else{
             // Regular chat navigation
-            const path = window.location.pathname;
+            dispatch(setSelectedConversation(props.id));
             if(screenWidth<="640")
                 navigate(`/mobile-chat/${props.id}`,{state:{chatName:props.name,isGroup:props.isGroup}})
             else
