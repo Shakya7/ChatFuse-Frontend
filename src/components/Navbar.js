@@ -10,8 +10,6 @@ import {logout} from "../redux/features/login/loginSlice";
 import { resetData } from '../redux/features/profile/profileSlice';
 import ReactLoading from "react-loading";
 import { socket } from '../socketClient';
-import ModalContainer from './ModalContainer';
-import FriendModal from './friends/FriendModal';
 
 function Navbar(props) {
 
@@ -23,8 +21,6 @@ function Navbar(props) {
   const isLoading=useSelector((state)=>state.login_state.isLogoutLoading);
 
   //const [selected, setSelected]=useState("");
-
-  const [friendsSection, setFriendsSection]=useState(false);
 
   useEffect(()=>{
     //if(window.location.pathname="/" || window.location.pathname="/chat")
@@ -41,6 +37,8 @@ function Navbar(props) {
     
   },[])
 
+  const isFriendRequestsActive = window.location.pathname === "/friendRequests";
+
   return (
     <div className={`${theme?"bg-[#16141b]":"bg-stone-100"} ${props.wdth} scrollbar-none border border-transparent ${theme?"border-r-stone-700":"border-r-stone-300"} h-full overflow-y-auto flex flex-col items-center`}>
       <img className="mb-3.5" src={logo} alt="logo"/>
@@ -50,12 +48,13 @@ function Navbar(props) {
         }} className="w-10 min-w-[2.5rem] h-10 min-h-[2.5rem] rounded-full bg-red-300 transition-colors ease-in-out delay-150 cursor-pointer hover:bg-red-500"/>
       <div className={`border w-[70%] border-transparent ${theme?"border-b-stone-700":"border-b-stone-300"} flex flex-col text-xl mt-10 transition-colors ease-in-out delay-150`}>
         <FontAwesomeIcon onClick={()=>{
-           setFriendsSection(true);
-        }} className={`mb-4 text-stone-600 cursor-pointer hover:text-sky-500`} icon={faPeopleGroup}/>
+           dispatch(setSection("chat"));
+           navigation("/friendRequests");
+        }} className={`mb-4 ${isFriendRequestsActive?"text-sky-500":"text-stone-600"} cursor-pointer hover:text-sky-500`} icon={faPeopleGroup}/>
         <FontAwesomeIcon onClick={()=>{
           dispatch(setSection("chat"));
           navigation("/")
-          }} className={`mb-4 ${section==="chat"?"text-sky-500":"text-stone-600"} cursor-pointer hover:text-sky-500`} icon={faMessage}/>
+          }} className={`mb-4 ${(section==="chat" && !isFriendRequestsActive)?"text-sky-500":"text-stone-600"} cursor-pointer hover:text-sky-500`} icon={faMessage}/>
         <FontAwesomeIcon onClick={()=>{
           dispatch(setSection("channel"));
           navigation("/channel")
@@ -91,7 +90,6 @@ function Navbar(props) {
         <div className={`flex rounded-full p-1 justify-center items-center ${!theme?"bg-white":""}`}><FontAwesomeIcon className={`${!theme?"text-sky-500":"text-white"} text-sm`} icon={faSun}/></div>
         <div className={`flex rounded-full p-1 justify-center items-center ${theme?"bg-[#16141b]":""}`}><FontAwesomeIcon className={`${theme?"text-violet-500":"text-white"} text-sm`} icon={faMoon}/></div>
       </div>
-      {friendsSection && <ModalContainer><FriendModal closeModal={setFriendsSection}/></ModalContainer>}
     </div>  
   )
 }
