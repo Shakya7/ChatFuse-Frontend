@@ -136,6 +136,17 @@ const chatSlice = createSlice({
                 // Push only the message object, not the entire payload
                 state.messages.push(action.payload.message);
             }
+
+            // Sync receiver's ChatList without an API call (avoids isLoading flicker)
+            const convIndex = state.conversations.findIndex(
+                (conv) => conv._id === action.payload.conversationId
+            );
+            if (convIndex !== -1) {
+                state.conversations[convIndex] = {
+                    ...state.conversations[convIndex],
+                    latestMessage: action.payload.message,
+                };
+            }
         },
         // Set current/selected conversation
         setSelectedConversation: (state, action) => {

@@ -81,8 +81,6 @@ function MainLayout(){
             socket.on("receive-message", (data) => {
                 console.log("Message received:", data);
                 dispatch(receiveMessage(data));
-                // Refresh conversations list
-                dispatch(getUserConversations());
             });
 
             socket.on("user-typing", (data) => {
