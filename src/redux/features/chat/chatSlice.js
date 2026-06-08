@@ -207,6 +207,27 @@ const chatSlice = createSlice({
                 state.conversations.unshift(action.payload);
             }
         },
+        // Update user status locally in the conversations list and currentConversation
+        updateUserStatus: (state, action) => {
+            const { userId, status } = action.payload;
+            state.conversations = state.conversations.map((conv) => {
+                const updatedUsers = conv.users.map((u) => {
+                    if (u._id === userId) {
+                        return { ...u, status };
+                    }
+                    return u;
+                });
+                return { ...conv, users: updatedUsers };
+            });
+            if (state.currentConversation && state.currentConversation.users) {
+                state.currentConversation.users = state.currentConversation.users.map((u) => {
+                    if (u._id === userId) {
+                        return { ...u, status };
+                    }
+                    return u;
+                });
+            }
+        },
     },
     extraReducers: (builder) => {
         // Get or create conversation
@@ -321,7 +342,8 @@ export const {
     clearMessages,
     clearChat,
     createTemporaryConversation,
-    addConversationToList
+    addConversationToList,
+    updateUserStatus
 } = chatSlice.actions;
 
 export default chatSlice.reducer;

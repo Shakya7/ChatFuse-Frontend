@@ -88,6 +88,15 @@ const friendSlice=createSlice({
             state.isSearchingUsers=false;
             state.searchedUsers=[];
         },
+        updateFriendStatus: (state, action) => {
+            const { userId, status } = action.payload;
+            state.friends = state.friends.map((friend) => {
+                if (friend._id === userId) {
+                    return { ...friend, status };
+                }
+                return friend;
+            });
+        },
     },
     extraReducers:(builder)=>{
         builder.addCase(getFriends.pending,(state)=>{
@@ -136,5 +145,5 @@ const friendSlice=createSlice({
 
 })
 
-export const {clearSearchedUser}=friendSlice.actions;
+export const {clearSearchedUser, updateFriendStatus}=friendSlice.actions;
 export default friendSlice.reducer;

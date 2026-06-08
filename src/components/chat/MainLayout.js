@@ -7,8 +7,8 @@ import { useEffect } from "react";
 import LoadingPage from "../LoadingPage";
 import { fetchAccountData } from "../../redux/features/profile/profileSlice";
 import { socket, connectSocket } from "../../socketClient";
-import {getFriendRequestedUsers, getUsersWhoSentRequests, getAcceptedFriends} from "../../redux/features/friend/friendSlice";
-import { receiveMessage, addTypingUser, removeTypingUser, getUserConversations } from "../../redux/features/chat/chatSlice";
+import {getFriendRequestedUsers, getUsersWhoSentRequests, getAcceptedFriends, updateFriendStatus} from "../../redux/features/friend/friendSlice";
+import { receiveMessage, addTypingUser, removeTypingUser, getUserConversations, updateUserStatus } from "../../redux/features/chat/chatSlice";
 import axios from "axios";
 
 
@@ -60,21 +60,28 @@ function MainLayout(){
                 dispatch(getFriendRequestedUsers(profileID));
             });
             socket.on("friend-connected",async(data)=>{
+                if (!data.id) return;
                 let result=await axios.post(`${process.env.REACT_APP_BACKEND_URL}/api/v1/users/checkIDPartofFriends/${data.id}`,{
                     profileID
                 })
                 console.log(result.data.status);
-                if(result.data.status)
-                    dispatch(getAcceptedFriends(profileID));
+                const isFriend = result.data.status === true || result.data.status === "true";
+                if(isFriend) {
+                    dispatch(updateFriendStatus({ userId: data.id, status: "Online" }));
+                    dispatch(updateUserStatus({ userId: data.id, status: "Online" }));
+                }
             })
             socket.on("friend-disconnected",async(data)=>{
-                
+                if (!data.id) return;
                 let result=await axios.post(`${process.env.REACT_APP_BACKEND_URL}/api/v1/users/checkIDPartofFriends/${data.id}`,{
                     profileID
                 })
                 console.log(result.data.status);
-                if(result.data.status)
-                    dispatch(getAcceptedFriends(profileID));
+                const isFriend = result.data.status === true || result.data.status === "true";
+                if(isFriend) {
+                    dispatch(updateFriendStatus({ userId: data.id, status: "Offline" }));
+                    dispatch(updateUserStatus({ userId: data.id, status: "Offline" }));
+                }
             })
 
             // Real-time messaging listeners
