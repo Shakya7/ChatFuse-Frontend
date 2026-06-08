@@ -80,10 +80,12 @@ function ChatWindow() {
             {/* Comic mode SVG filter for hand-drawn border effect */}
             {comicMode && (
                 <svg width="0" height="0" style={{ position: "absolute" }}>
-                    <filter id="comic-wobble">
-                        <feTurbulence type="fractalNoise" baseFrequency="0.035" numOctaves="3" result="noise" />
-                        <feDisplacementMap in="SourceGraphic" in2="noise" scale="3" xChannelSelector="R" yChannelSelector="G" />
-                    </filter>
+                    <defs>
+                        <filter id="comic-wobble" x="-10%" y="-10%" width="120%" height="120%">
+                            <feTurbulence type="fractalNoise" baseFrequency="0.012" numOctaves="2" seed="4" result="noise" />
+                            <feDisplacementMap in="SourceGraphic" in2="noise" scale="5" xChannelSelector="R" yChannelSelector="G" />
+                        </filter>
+                    </defs>
                 </svg>
             )}
             <div ref={scrollContainerRef} className="h-[90%] flex pb-6 flex-col overflow-y-auto scrollbar-hide">
@@ -105,42 +107,30 @@ function ChatWindow() {
                                     {comicMode ? (
                                         // ── COMIC / HAND-DRAWN BUBBLE ──
                                         <div style={{
-                                            fontFamily: "'Caveat', cursive",
-                                            fontSize: "1.1rem",
-                                            fontWeight: 500,
-                                            background: isSender ? "#ddeeff" : "#ffffff",
-                                            border: `2.5px solid ${isSender ? "#1a6fd4" : "#1a1a1a"}`,
-                                            borderRadius: isSender
-                                                ? "50px 50px 8px 50px"   // pill with clipped bottom-right (sender tail)
-                                                : "50px 50px 50px 8px",  // pill with clipped bottom-left (receiver tail)
-                                            padding: "10px 18px",
-                                            maxWidth: "18rem",
-                                            position: "relative",
-                                            color: isSender ? "#0d3d7a" : "#111111",
-                                            // NO boxShadow, NO filter — clean single-line comic look
-                                        }}>
-                                            {!isSender && (
-                                                <p style={{
-                                                    fontWeight: 700,
-                                                    fontSize: "0.82rem",
-                                                    marginBottom: "2px",
-                                                    fontFamily: "'Caveat', cursive"
-                                                }}>
-                                                    {msg.sender.name}
-                                                </p>
-                                            )}
-                                            <p style={{ wordBreak: "break-word", lineHeight: 1.3 }}>
-                                                {msg.content}
-                                            </p>
-                                            <p style={{
-                                                fontSize: "0.72rem",
-                                                marginTop: "4px",
-                                                opacity: 0.55,
-                                                textAlign: "right"
-                                            }}>
-                                                {new Date(msg.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
-                                            </p>
-                                        </div>
+    fontFamily: "'Caveat', cursive",
+    fontSize: "1.15rem",
+    fontWeight: 500,
+    background: isSender ? "#ddeeff" : "#ffffff",
+    border: `2.5px solid ${isSender ? "#1a6fd4" : "#1a1a1a"}`,
+    borderRadius: isSender
+        ? "22px 22px 4px 22px"
+        : "22px 22px 22px 4px",
+    padding: "10px 18px",
+    position: "relative",
+    color: isSender ? "#0d3d7a" : "#111111",
+    filter: "url(#comic-wobble)",
+    maxWidth: "18rem",
+}}>
+    {!isSender && (
+        <p style={{ fontWeight: 700, fontSize: "0.82rem", marginBottom: "2px", fontFamily: "'Caveat', cursive" }}>
+            {msg.sender.name}
+        </p>
+    )}
+    <p style={{ wordBreak: "break-word", lineHeight: 1.3 }}>{msg.content}</p>
+    <p style={{ fontSize: "0.72rem", marginTop: "4px", opacity: 0.55, textAlign: "right" }}>
+        {new Date(msg.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+    </p>
+</div>
                                     ) : (
                                         // ── REGULAR BUBBLE ──
                                         <div className={`max-w-xs px-4 py-2 rounded-lg ${isSender ? "bg-teal-600 text-white" : "bg-gray-600 text-gray-100"}`}>
