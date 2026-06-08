@@ -194,6 +194,16 @@ const chatSlice = createSlice({
         builder.addCase(sendMessage.fulfilled, (state, action) => {
             state.isSendingMessage = false;
             state.messages.push(action.payload);
+            // Sync the sender's ChatList: update latestMessage for this conversation
+            const convIndex = state.conversations.findIndex(
+                (conv) => conv._id === state.selectedConversation
+            );
+            if (convIndex !== -1) {
+                state.conversations[convIndex] = {
+                    ...state.conversations[convIndex],
+                    latestMessage: action.payload,
+                };
+            }
             state.error = "";
         });
         builder.addCase(sendMessage.rejected, (state, action) => {
