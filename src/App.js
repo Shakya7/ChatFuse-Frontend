@@ -33,7 +33,7 @@ function App() {
               <Route path="/channel" element={<HomeScreenWindow/>}/>
               <Route path="/channel/:id" element={<ChannelWindow/>}/>
               <Route path="/profile" element={<ProfileWindow/>}/>
-              <Route path="/friendRequests" element={<FriendRequestsWindow/>}/>
+              <Route path="/friends" element={<FriendRequestsWindow/>}/>
             </Route>
             <Route path="/mobile-chat/:id" element={<ChatWindow/>}/>
             <Route path="/mobile-channel/:id" element={<ChannelWindow/>}/>

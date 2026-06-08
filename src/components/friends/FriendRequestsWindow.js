@@ -133,10 +133,10 @@ function FriendRequestsWindow() {
             </div>
 
             {/* Tabs Navigation */}
-            <div className="flex gap-4 mb-6 border-b border-stone-300 dark:border-stone-700 pb-2">
+            <div className="flex mb-6 border-b border-stone-300 dark:border-stone-700 pb-2">
                 <button 
                     onClick={() => setActiveTab("all-friends")}
-                    className={`px-4 py-2 font-semibold transition-all ${
+                    className={`flex-1 text-center px-2 py-2 font-semibold transition-all ${
                         activeTab === "all-friends" 
                             ? comicMode ? "border-b-4 border-black text-black" : "border-b-2 border-sky-500 text-sky-500" 
                             : "text-stone-500 hover:text-stone-700 dark:hover:text-stone-300"
@@ -147,7 +147,7 @@ function FriendRequestsWindow() {
                 </button>
                 <button 
                     onClick={() => setActiveTab("pending-requests")}
-                    className={`px-4 py-2 font-semibold transition-all relative ${
+                    className={`flex-1 text-center px-2 py-2 font-semibold transition-all relative ${
                         activeTab === "pending-requests" 
                             ? comicMode ? "border-b-4 border-black text-black" : "border-b-2 border-sky-500 text-sky-500" 
                             : "text-stone-500 hover:text-stone-700 dark:hover:text-stone-300"
@@ -163,7 +163,7 @@ function FriendRequestsWindow() {
                 </button>
                 <button 
                     onClick={() => setActiveTab("add-friend")}
-                    className={`px-4 py-2 font-semibold transition-all ${
+                    className={`flex-1 text-center px-2 py-2 font-semibold transition-all ${
                         activeTab === "add-friend" 
                             ? comicMode ? "border-b-4 border-black text-black" : "border-b-2 border-sky-500 text-sky-500" 
                             : "text-stone-500 hover:text-stone-700 dark:hover:text-stone-300"
@@ -179,16 +179,16 @@ function FriendRequestsWindow() {
                 
                 {/* 1. ALL FRIENDS TAB */}
                 {activeTab === "all-friends" && (
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                    <div className="flex flex-wrap gap-4">
                         {friends && friends.length > 0 ? (
                             friends.map((friend) => (
                                 <div 
                                     key={friend._id} 
-                                    className={`p-4 flex justify-between items-center ${
+                                    className={`flex-1 min-w-[280px] min-[1200px]:max-w-[380px] p-4 flex items-center gap-4 ${
                                         theme ? "bg-stone-800" : comicMode ? "bg-[#fdfdfd]" : "bg-white"
                                     } ${borderStyle}`}
                                 >
-                                    <div className="flex items-center gap-3 overflow-hidden">
+                                    <div className="flex items-center gap-3 flex-1 min-w-0">
                                         <div className="w-12 h-12 rounded-full bg-red-300 flex-shrink-0 relative">
                                             <div className={`absolute w-[12px] h-[12px] rounded-full border-2 border-white dark:border-stone-800 ${
                                                 friend.status === "Online" ? "bg-green-600" : "bg-gray-500"
@@ -203,7 +203,7 @@ function FriendRequestsWindow() {
                                     <button 
                                         onClick={() => handleStartChat(friend)}
                                         title="Send Message"
-                                        className={`p-2.5 rounded-full transition-all ${
+                                        className={`flex-shrink-0 px-3 py-2 rounded-lg transition-all ${
                                             comicMode 
                                                 ? "border-2 border-black bg-sky-200 hover:bg-sky-300 shadow-[2px_2px_0px_#000]" 
                                                 : "bg-sky-100 hover:bg-sky-200 text-sky-600 dark:bg-stone-700 dark:hover:bg-stone-600 dark:text-sky-400"

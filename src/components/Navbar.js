@@ -37,7 +37,7 @@ function Navbar(props) {
     
   },[])
 
-  const isFriendRequestsActive = window.location.pathname === "/friendRequests";
+  const isFriendRequestsActive = window.location.pathname === "/friends";
 
   return (
     <div className={`${theme?"bg-[#16141b]":"bg-stone-100"} ${props.wdth} scrollbar-none border border-transparent ${theme?"border-r-stone-700":"border-r-stone-300"} h-full overflow-y-auto flex flex-col items-center`}>
@@ -49,7 +49,7 @@ function Navbar(props) {
       <div className={`border w-[70%] border-transparent ${theme?"border-b-stone-700":"border-b-stone-300"} flex flex-col text-xl mt-10 transition-colors ease-in-out delay-150`}>
         <FontAwesomeIcon onClick={()=>{
            dispatch(setSection("chat"));
-           navigation("/friendRequests");
+           navigation("/friends");
         }} className={`mb-4 ${isFriendRequestsActive?"text-sky-500":"text-stone-600"} cursor-pointer hover:text-sky-500`} icon={faPeopleGroup}/>
         <FontAwesomeIcon onClick={()=>{
           dispatch(setSection("chat"));
