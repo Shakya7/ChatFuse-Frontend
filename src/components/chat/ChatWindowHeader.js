@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
   faEllipsisVertical,
@@ -7,6 +8,8 @@ import {
 } from "@fortawesome/free-solid-svg-icons";
 import { useSelector } from "react-redux";
 import { useNavigate, useLocation } from "react-router-dom";
+import ModalContainer from "../ModalContainer";
+import GroupSettingsModal from "./GroupSettingsModal";
 
 function ChatWindowHeader() {
   const theme = useSelector((state) => state.settings.darkMode);
@@ -14,6 +17,7 @@ function ChatWindowHeader() {
   const { state } = useLocation();
   const currentConversation = useSelector((state) => state.chat.currentConversation);
   const currentUser = useSelector((state) => state.login_state.userID);
+  const [showSettings, setShowSettings] = useState(false);
 
   // Fallback to Redux store values if location state is null (e.g. on direct link, refresh)
   let chatName = state?.chatName;
@@ -46,8 +50,11 @@ function ChatWindowHeader() {
           icon={faArrowLeft}
         />
         <div className="w-10 min-w-[2.5rem] h-10 min-h-[2.5rem] bg-red-300 rounded-full" />
-        <div className={`${theme ? "text-stone-300" : "text-stone-800"}`}>
-          <p>{chatName || "Loading..."}</p>
+        <div 
+          className={`${theme ? "text-stone-300" : "text-stone-800"} ${isGroup ? "cursor-pointer hover:opacity-80" : ""}`}
+          onClick={() => isGroup && setShowSettings(true)}
+        >
+          <p className="font-semibold">{chatName || "Loading..."}</p>
           {isGroup && <p className="text-xs text-stone-500">{currentConversation?.users?.length || 0} Members</p>} 
         </div>
       </div>
@@ -60,6 +67,12 @@ function ChatWindowHeader() {
         <FontAwesomeIcon icon={faSearch} />
         <FontAwesomeIcon icon={faEllipsisVertical} />
       </div>
+
+      {showSettings && isGroup && (
+        <ModalContainer>
+          <GroupSettingsModal closeModal={() => setShowSettings(false)} />
+        </ModalContainer>
+      )}
     </header>
   );
 }

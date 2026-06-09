@@ -1,4 +1,4 @@
-import { Outlet } from "react-router-dom";
+import { Outlet, useNavigate } from "react-router-dom";
 import LeftPane from "./LeftPane";
 import { useSelector, useDispatch } from 'react-redux';
 import LoginPage from "../LoginPage";
@@ -8,7 +8,7 @@ import LoadingPage from "../LoadingPage";
 import { fetchAccountData } from "../../redux/features/profile/profileSlice";
 import { socket, connectSocket } from "../../socketClient";
 import {getFriendRequestedUsers, getUsersWhoSentRequests, getAcceptedFriends, updateFriendStatus} from "../../redux/features/friend/friendSlice";
-import { receiveMessage, addTypingUser, removeTypingUser, getUserConversations, updateUserStatus, addConversationToList, silentlyFetchAndAddConversation } from "../../redux/features/chat/chatSlice";
+import { receiveMessage, addTypingUser, removeTypingUser, getUserConversations, updateUserStatus, addConversationToList, silentlyFetchAndAddConversation, updateConversationInList, removeConversationFromList } from "../../redux/features/chat/chatSlice";
 import axios from "axios";
 
 
@@ -19,6 +19,7 @@ function MainLayout(){
     const friends=useSelector((state)=>state.friend.friends);
 
     const dispatch=useDispatch();
+    const navigate=useNavigate();
     const isLoading=useSelector((state)=>state.login_state.isLoading);
     const profileID=useSelector((state)=>state.login_state.userID);
 
@@ -103,6 +104,23 @@ function MainLayout(){
                 }
             });
 
+            // Group updated: members list changed (added members or left group)
+            socket.on("group-updated", (data) => {
+                console.log("Group updated:", data);
+                if (data?.conversation) {
+                    const isMember = data.conversation.users?.some(u => u._id === profileID);
+                    if (isMember) {
+                        dispatch(updateConversationInList(data.conversation));
+                    } else {
+                        dispatch(removeConversationFromList(data.conversation._id));
+                        const path = window.location.pathname;
+                        if (path.includes(data.conversation._id)) {
+                            navigate("/");
+                        }
+                    }
+                }
+            });
+
             socket.on("user-typing", (data) => {
                 console.log("User typing:", data);
                 dispatch(addTypingUser(data.senderId));
@@ -124,6 +142,7 @@ function MainLayout(){
             return ()=>{
                 socket.off("receive-message");
                 socket.off("group-created");
+                socket.off("group-updated");
                 socket.off("user-typing");
                 socket.off("user-stop-typing");
                 socket.off("message-sent");

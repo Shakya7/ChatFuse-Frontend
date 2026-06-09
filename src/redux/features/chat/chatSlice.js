@@ -10,7 +10,8 @@ const chatState = {
     error: "",
     isTyping: false,
     typingUsers: [],
-    selectedConversation: null
+    selectedConversation: null,
+    leftGroupId: null   // ID of the group the user just left — lets ChatWindow show a "you left" screen
 };
 
 // Get or create conversation
@@ -139,6 +140,42 @@ export const silentlyFetchAndAddConversation = createAsyncThunk(
     }
 );
 
+// Add members to group
+export const addMembersToGroup = createAsyncThunk(
+    "/chat/addMembersToGroup",
+    async ({ conversationId, memberIds }, { rejectWithValue }) => {
+        try {
+            const data = await axios.post(
+                `${process.env.REACT_APP_BACKEND_URL}/api/v1/chat/add-members`,
+                { conversationId, memberIds },
+                { withCredentials: true }
+            );
+            return data.data.data.conversation;
+        } catch (err) {
+            console.error("Add Members Error:", err.response?.data?.message || err.message);
+            return rejectWithValue(err.response?.data?.message || err.message);
+        }
+    }
+);
+
+// Leave group
+export const leaveGroup = createAsyncThunk(
+    "/chat/leaveGroup",
+    async (conversationId, { rejectWithValue }) => {
+        try {
+            await axios.post(
+                `${process.env.REACT_APP_BACKEND_URL}/api/v1/chat/leave-group`,
+                { conversationId },
+                { withCredentials: true }
+            );
+            return conversationId;
+        } catch (err) {
+            console.error("Leave Group Error:", err.response?.data?.message || err.message);
+            return rejectWithValue(err.response?.data?.message || err.message);
+        }
+    }
+);
+
 const chatSlice = createSlice({
     name: "chat",
     initialState: chatState,
@@ -199,6 +236,7 @@ const chatSlice = createSlice({
             state.selectedConversation = null;
             state.currentConversation = null;
             state.typingUsers = [];
+            state.leftGroupId = null;  // reset leave-group flag on unmount
         },
         // Create temporary conversation locally in Redux (does NOT appear in ChatList)
         createTemporaryConversation: (state, action) => {
@@ -247,6 +285,33 @@ const chatSlice = createSlice({
                     }
                     return u;
                 });
+            }
+        },
+        updateConversationInList: (state, action) => {
+            const index = state.conversations.findIndex(c => c._id === action.payload._id);
+            if (index !== -1) {
+                state.conversations[index] = {
+                    ...state.conversations[index],
+                    ...action.payload,
+                    latestMessage: action.payload.latestMessage || state.conversations[index].latestMessage
+                };
+            } else {
+                state.conversations.unshift(action.payload);
+            }
+            if (state.currentConversation && state.currentConversation._id === action.payload._id) {
+                state.currentConversation = {
+                    ...state.currentConversation,
+                    ...action.payload
+                };
+            }
+        },
+        removeConversationFromList: (state, action) => {
+            const conversationId = action.payload;
+            state.conversations = state.conversations.filter(c => c._id !== conversationId);
+            if (state.selectedConversation === conversationId) {
+                state.selectedConversation = null;
+                state.currentConversation = null;
+                state.messages = [];
             }
         },
     },
@@ -360,6 +425,26 @@ const chatSlice = createSlice({
                 state.conversations.unshift(action.payload);
             }
         });
+
+        // Add members to group
+        builder.addCase(addMembersToGroup.fulfilled, (state, action) => {
+            const index = state.conversations.findIndex(c => c._id === action.payload._id);
+            if (index !== -1) {
+                state.conversations[index] = action.payload;
+            }
+            if (state.currentConversation && state.currentConversation._id === action.payload._id) {
+                state.currentConversation = action.payload;
+            }
+        });
+
+        // Leave group — only remove from list and set the leftGroupId flag.
+        // Do NOT clear currentConversation/messages yet — ChatWindow reads leftGroupId
+        // to show the "You've left this group" screen before the user navigates away.
+        builder.addCase(leaveGroup.fulfilled, (state, action) => {
+            const conversationId = action.payload;
+            state.conversations = state.conversations.filter(c => c._id !== conversationId);
+            state.leftGroupId = conversationId;
+        });
     }
 });
 
@@ -374,7 +459,9 @@ export const {
     clearChat,
     createTemporaryConversation,
     addConversationToList,
-    updateUserStatus
+    updateUserStatus,
+    updateConversationInList,
+    removeConversationFromList
 } = chatSlice.actions;
 
 export default chatSlice.reducer;

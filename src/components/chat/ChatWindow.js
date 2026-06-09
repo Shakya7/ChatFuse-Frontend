@@ -22,6 +22,7 @@ function ChatWindow() {
     const currentConversation = useSelector((state) => state.chat.currentConversation);
     const loginID = useSelector((state) => state.login_state.userID);
     const comicMode = useSelector((state) => state.settings.comicMode);
+    const leftGroupId = useSelector((state) => state.chat.leftGroupId);
     const messagesEndRef = useRef(null);
     const scrollContainerRef = useRef(null);
 
@@ -73,6 +74,32 @@ function ChatWindow() {
             }, 0);
         }
     }, [messages.length])
+
+    // ── You left this group screen ──────────────────────────────────────────────
+    if (leftGroupId && leftGroupId === conversationID) {
+        return (
+            <div className="flex flex-col h-screen items-center justify-center gap-6"
+                style={{ backgroundImage: `url(${theme ? dark_theme_1 : light_theme_1})`, backgroundSize: "cover" }}>
+                <div className={`flex flex-col items-center gap-4 px-8 py-10 rounded-2xl shadow-2xl backdrop-blur-md border ${
+                    theme ? "bg-stone-800/80 border-stone-700 text-white" : "bg-white/80 border-stone-200 text-stone-800"
+                }`}>
+                    <div className="w-16 h-16 rounded-full bg-red-500/20 flex items-center justify-center">
+                        <span className="text-3xl">👋</span>
+                    </div>
+                    <h2 className="text-xl font-bold font-nunito">You left the group</h2>
+                    <p className={`text-sm text-center max-w-xs ${theme ? "text-stone-400" : "text-stone-500"}`}>
+                        You've successfully left this group chat. You can always create a new group or join one.
+                    </p>
+                    <button
+                        onClick={() => navigate("/")}
+                        className="mt-2 px-6 py-2.5 bg-teal-500 hover:bg-teal-600 text-white rounded-lg font-semibold text-sm transition-colors shadow-lg"
+                    >
+                        Go Home
+                    </button>
+                </div>
+            </div>
+        );
+    }
 
     return (
         <div className="flex flex-col h-screen" style={{
