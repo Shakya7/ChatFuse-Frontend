@@ -11,7 +11,8 @@ const chatState = {
     isTyping: false,
     typingUsers: [],
     selectedConversation: null,
-    leftGroupId: null   // ID of the group the user just left — lets ChatWindow show a "you left" screen
+    leftGroupId: null,
+    unreadCounts: {}  // { [conversationId]: number } — incremented per unseen message
 };
 
 // Get or create conversation
@@ -191,8 +192,12 @@ const chatSlice = createSlice({
             const receivedConvStr = String(action.payload.conversationId);
             
             if (selectedConvStr === receivedConvStr) {
-                // Push only the message object, not the entire payload
+                // Receiver is actively viewing this conversation — push message, no badge
                 state.messages.push(action.payload.message);
+            } else {
+                // Receiver is elsewhere — increment unread badge count
+                const prev = state.unreadCounts[receivedConvStr] || 0;
+                state.unreadCounts[receivedConvStr] = prev + 1;
             }
 
             // Sync receiver's ChatList without an API call (avoids isLoading flicker)
@@ -236,7 +241,15 @@ const chatSlice = createSlice({
             state.selectedConversation = null;
             state.currentConversation = null;
             state.typingUsers = [];
-            state.leftGroupId = null;  // reset leave-group flag on unmount
+            state.leftGroupId = null;
+            state.unreadCounts = {};  // wipe all badge counts on full reset
+        },
+        // Clear unread count for a specific conversation (called when user opens it)
+        clearUnreadCount: (state, action) => {
+            const conversationId = String(action.payload);
+            if (state.unreadCounts[conversationId]) {
+                state.unreadCounts[conversationId] = 0;
+            }
         },
         // Create temporary conversation locally in Redux (does NOT appear in ChatList)
         createTemporaryConversation: (state, action) => {
@@ -457,6 +470,7 @@ export const {
     removeTypingUser,
     clearMessages,
     clearChat,
+    clearUnreadCount,
     createTemporaryConversation,
     addConversationToList,
     updateUserStatus,
