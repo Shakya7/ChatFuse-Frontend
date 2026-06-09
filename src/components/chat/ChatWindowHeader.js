@@ -21,7 +21,7 @@ function ChatWindowHeader() {
 
   if (currentConversation) {
     if (currentConversation.groupChat) {
-      chatName = currentConversation.name || "Group Chat";
+      chatName = currentConversation.chatName || "Group Chat";
       isGroup = true;
     } else {
       const otherUser = currentConversation.users?.find((user) => user._id !== currentUser);
@@ -48,7 +48,7 @@ function ChatWindowHeader() {
         <div className="w-10 min-w-[2.5rem] h-10 min-h-[2.5rem] bg-red-300 rounded-full" />
         <div className={`${theme ? "text-stone-300" : "text-stone-800"}`}>
           <p>{chatName || "Loading..."}</p>
-          {isGroup && <p>24 Members</p>} 
+          {isGroup && <p className="text-xs text-stone-500">{currentConversation?.users?.length || 0} Members</p>} 
         </div>
       </div>
       <div

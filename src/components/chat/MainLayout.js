@@ -8,7 +8,7 @@ import LoadingPage from "../LoadingPage";
 import { fetchAccountData } from "../../redux/features/profile/profileSlice";
 import { socket, connectSocket } from "../../socketClient";
 import {getFriendRequestedUsers, getUsersWhoSentRequests, getAcceptedFriends, updateFriendStatus} from "../../redux/features/friend/friendSlice";
-import { receiveMessage, addTypingUser, removeTypingUser, getUserConversations, updateUserStatus } from "../../redux/features/chat/chatSlice";
+import { receiveMessage, addTypingUser, removeTypingUser, getUserConversations, updateUserStatus, addConversationToList } from "../../redux/features/chat/chatSlice";
 import axios from "axios";
 
 
@@ -88,6 +88,18 @@ function MainLayout(){
             socket.on("receive-message", (data) => {
                 console.log("Message received:", data);
                 dispatch(receiveMessage(data));
+                // If this conversation isn't in our list yet (e.g. a group we just joined),
+                // fetch it from the backend and add it to the ChatList.
+                // We dispatch getUserConversations lazily to keep it simple.
+                dispatch(getUserConversations());
+            });
+
+            // Group created: non-creator members receive the new group and it appears in ChatList
+            socket.on("group-created", (data) => {
+                console.log("Group created:", data);
+                if (data?.conversation) {
+                    dispatch(addConversationToList(data.conversation));
+                }
             });
 
             socket.on("user-typing", (data) => {
@@ -110,6 +122,7 @@ function MainLayout(){
 
             return ()=>{
                 socket.off("receive-message");
+                socket.off("group-created");
                 socket.off("user-typing");
                 socket.off("user-stop-typing");
                 socket.off("message-sent");

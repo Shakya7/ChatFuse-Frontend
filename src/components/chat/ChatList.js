@@ -74,8 +74,8 @@ function ChatList() {
                                     id={conversation._id} 
                                     message={lastMessagePreview} 
                                     isGroup={conversation.groupChat} 
-                                    name={otherUser?.name || "User"} 
-                                    status={otherUser?.status || "Offline"}
+                                    name={conversation.groupChat ? conversation.chatName : (otherUser?.name || "User")} 
+                                    status={conversation.groupChat ? "Online" : (otherUser?.status || "Offline")}
                                 />
                             )
                         })

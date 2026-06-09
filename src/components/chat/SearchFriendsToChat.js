@@ -3,14 +3,18 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faArrowLeft, faMagnifyingGlass, faPlus } from "@fortawesome/free-solid-svg-icons";
 import { useDispatch } from "react-redux";
 import { setSection } from "../../redux/features/app_state/appStateSlice";
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import ChatHeads from "./ChatHeads";
+import CreateGroupModal from "./CreateGroupModal";
+import ModalContainer from "../ModalContainer";
 
 function SearchFriendsToChat() {
     const dispatch=useDispatch();
     const theme=useSelector((state)=>state.settings.darkMode);
     const friends=useSelector((state)=>state.friend.friends);
     const inputRef=useRef(null);
+    const [showCreateGroup, setShowCreateGroup] = useState(false);
+
     useEffect(()=>{
         inputRef.current.focus();
     },[])
@@ -24,7 +28,7 @@ function SearchFriendsToChat() {
                 <input ref={inputRef} placeholder='Search friends' className={`bg-transparent pl-2 outline-0 text-sm ${theme?"text-white":"text-black"} w-[85%] placeholder:text-stone-700`}/>
                 <FontAwesomeIcon className="text-stone-700 pr-2" icon={faMagnifyingGlass}/>
             </div>
-            <div className={`flex cursor-pointer justify-start mt-2.5 p-4 items-center gap-4 ${theme?"hover:bg-[#16141b]":"hover:bg-white"}`}>
+            <div onClick={() => setShowCreateGroup(true)} className={`flex cursor-pointer justify-start mt-2.5 p-4 items-center gap-4 ${theme?"hover:bg-[#16141b]":"hover:bg-white"}`}>
                 <div className={`w-12 relative min-w-[2.5rem] h-12 min-h-[2.5rem] rounded-full flex justify-center items-center ${theme?"bg-gray-600":"bg-stone-400"}`}>
                     <FontAwesomeIcon icon={faPlus}/>
                 </div>
@@ -37,6 +41,11 @@ function SearchFriendsToChat() {
             }
             </div>
             
+            {showCreateGroup && (
+                <ModalContainer>
+                    <CreateGroupModal closeModal={() => setShowCreateGroup(false)} />
+                </ModalContainer>
+            )}
         </div>
     )
 }

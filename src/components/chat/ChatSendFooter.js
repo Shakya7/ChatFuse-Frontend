@@ -32,18 +32,16 @@ function ChatSendFooter() {
         if(currentConversation?.users){
             const otherUser=currentConversation.users.find((user)=>user._id!==currentUser);
             
-            if(otherUser && selectedConversation && !String(selectedConversation).startsWith("temp-")){
+            if(selectedConversation && !String(selectedConversation).startsWith("temp-")){
                 // Emit typing event (only for real conversations)
                 socket.emit("typing",{
-                    conversationId:selectedConversation,
-                    recipientId:otherUser._id
+                    conversationId:selectedConversation
                 });
 
                 // Set timeout to stop typing indicator after 3 seconds of inactivity
                 typingTimeoutRef.current=setTimeout(()=>{
                     socket.emit("stop-typing",{
-                        conversationId:selectedConversation,
-                        recipientId:otherUser._id
+                        conversationId:selectedConversation
                     });
                 },3000);
             }
@@ -86,11 +84,10 @@ function ChatSendFooter() {
                 dispatch(addConversationToList({ ...realConvData, latestMessage: sentMessage }));
             }
 
-            // Emit full message via socket to recipient
-            if(otherUser && sentMessage){
+            // Emit full message via socket — backend broadcasts to all conversation members
+            if(sentMessage){
                 socket.emit("send-message",{
                     conversationId: realConversationId,
-                    recipientId: otherUser._id,
                     message: sentMessage
                 });
             }
@@ -98,11 +95,10 @@ function ChatSendFooter() {
             // Clear input
             setMessageInput("");
 
-            // Stop typing indicator (only relevant for pre-existing conversations)
-            if(otherUser && !String(selectedConversation).startsWith("temp-")){
+            // Stop typing indicator
+            if(!String(selectedConversation).startsWith("temp-")){
                 socket.emit("stop-typing",{
-                    conversationId: realConversationId,
-                    recipientId: otherUser._id
+                    conversationId: realConversationId
                 });
             }
         }catch(err){
