@@ -8,7 +8,7 @@ import LoadingPage from "../LoadingPage";
 import { fetchAccountData } from "../../redux/features/profile/profileSlice";
 import { socket, connectSocket } from "../../socketClient";
 import {getFriendRequestedUsers, getUsersWhoSentRequests, getAcceptedFriends, updateFriendStatus} from "../../redux/features/friend/friendSlice";
-import { receiveMessage, addTypingUser, removeTypingUser, getUserConversations, updateUserStatus, addConversationToList } from "../../redux/features/chat/chatSlice";
+import { receiveMessage, addTypingUser, removeTypingUser, getUserConversations, updateUserStatus, addConversationToList, silentlyFetchAndAddConversation } from "../../redux/features/chat/chatSlice";
 import axios from "axios";
 
 
@@ -89,9 +89,10 @@ function MainLayout(){
                 console.log("Message received:", data);
                 dispatch(receiveMessage(data));
                 // If this conversation isn't in our list yet (e.g. a group we just joined),
-                // fetch it from the backend and add it to the ChatList.
-                // We dispatch getUserConversations lazily to keep it simple.
-                dispatch(getUserConversations());
+                // silently fetch it from the backend and add it to the ChatList.
+                if (data.conversationId) {
+                    dispatch(silentlyFetchAndAddConversation(data.conversationId));
+                }
             });
 
             // Group created: non-creator members receive the new group and it appears in ChatList

@@ -118,6 +118,27 @@ export const markMessageAsRead = createAsyncThunk(
     }
 );
 
+// Silently fetch a single conversation and add it to the list ONLY if it isn't already there.
+// Does NOT touch isLoading — prevents any UI refresh or scroll reset on the receiver's side.
+export const silentlyFetchAndAddConversation = createAsyncThunk(
+    "/chat/silentlyFetchAndAddConversation",
+    async (conversationId, { getState, rejectWithValue }) => {
+        const state = getState();
+        const exists = state.chat.conversations.some((c) => c._id === conversationId);
+        if (exists) return null; // Already in list — nothing to do
+        try {
+            const data = await axios.get(
+                `${process.env.REACT_APP_BACKEND_URL}/api/v1/chat/get-conversation/${conversationId}`,
+                { withCredentials: true }
+            );
+            return data.data.data.conversation;
+        } catch (err) {
+            console.error("Silent fetch conversation error:", err.message);
+            return rejectWithValue(err.message);
+        }
+    }
+);
+
 const chatSlice = createSlice({
     name: "chat",
     initialState: chatState,
@@ -327,6 +348,16 @@ const chatSlice = createSlice({
             );
             if (messageIndex !== -1) {
                 state.messages[messageIndex] = action.payload;
+            }
+        });
+
+        // Silently add a conversation that arrived via socket but wasn't in the list yet.
+        // pending/rejected cases intentionally omitted — no isLoading, no error state.
+        builder.addCase(silentlyFetchAndAddConversation.fulfilled, (state, action) => {
+            if (!action.payload) return; // null means it already existed — nothing to do
+            const exists = state.conversations.some((c) => c._id === action.payload._id);
+            if (!exists) {
+                state.conversations.unshift(action.payload);
             }
         });
     }
