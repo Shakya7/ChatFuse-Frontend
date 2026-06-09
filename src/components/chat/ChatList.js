@@ -64,7 +64,18 @@ function ChatList() {
                         sortedConversations.map((conversation)=>{
                             // Get the other user in the conversation
                             const otherUser=conversation.users.find((user)=>user._id!==currentUser);
-                            const lastMessagePreview=conversation.latestMessage?.content || "No messages yet";
+                            // Format the last message preview
+                            let lastMessagePreview = "No messages yet";
+                            if (conversation.latestMessage) {
+                                if (conversation.groupChat) {
+                                    const senderName = conversation.latestMessage.sender?._id === currentUser 
+                                        ? "You" 
+                                        : conversation.latestMessage.sender?.name || "Member";
+                                    lastMessagePreview = `${senderName}: ${conversation.latestMessage.content}`;
+                                } else {
+                                    lastMessagePreview = conversation.latestMessage.content;
+                                }
+                            }
                             const lastMessageTime=conversation.latestMessage?.createdAt?new Date(conversation.latestMessage.createdAt).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}):"";
                             
                             return (
